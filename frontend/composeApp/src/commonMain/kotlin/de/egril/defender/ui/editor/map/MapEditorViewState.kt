@@ -12,7 +12,9 @@ import de.egril.defender.model.TargetType
  * Editable state of [MapEditorView]. The view creates it once with `remember` (no keys), so the
  * initial values come from the map the view was first opened with.
  */
-internal class MapEditorViewState(val map: EditorMap) {
+internal class MapEditorViewState(
+    val map: EditorMap,
+) {
     var mapWidth by mutableStateOf(map.width)
     var mapHeight by mutableStateOf(map.height)
     var tiles by mutableStateOf(map.tiles.toMutableMap())

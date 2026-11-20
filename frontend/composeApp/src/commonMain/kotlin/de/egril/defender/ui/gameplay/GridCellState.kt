@@ -122,6 +122,7 @@ internal class GridCellState(
         gameState.bombExplosionEffects.find { explosion ->
             explosion.center == position || explosion.affectedPositions.contains(position)
         }
+
     // Check if this tile is a valid spell target
     val spellTargeting = gameState.spellTargeting.value
     val isValidSpellTarget =
@@ -158,6 +159,7 @@ internal class GridCellState(
                 distance >= sel.type.minRange && distance <= effectiveRange
             }
         } ?: false
+
     // Tiles that are in range ONLY because of the double-reach spell (beyond normal range)
     val cellIsInDoubleReachOnlyRange =
         if (hasDoubleReachBuff) {

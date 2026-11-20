@@ -8,7 +8,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-internal fun MapEditorViewState.refreshMapPreviewImage(currentMap: EditorMap, coroutineScope: CoroutineScope) {
+internal fun MapEditorViewState.refreshMapPreviewImage(
+    currentMap: EditorMap,
+    coroutineScope: CoroutineScope,
+) {
     coroutineScope.launch {
         mapPreviewError = null
         val preferredIds = listOf(currentMap.id, map.id).distinct().filter { it.isNotBlank() }
@@ -71,7 +74,10 @@ internal suspend fun MapEditorViewState.loadMapPreviewFromDisk(currentMap: Edito
         painter
     }
 
-internal fun MapEditorViewState.regenerateMapPreview(currentMap: EditorMap, coroutineScope: CoroutineScope) {
+internal fun MapEditorViewState.regenerateMapPreview(
+    currentMap: EditorMap,
+    coroutineScope: CoroutineScope,
+) {
     if (mapImageGenerationRunning) return
     mapImageGenerationRunning = true
     mapImageGenerationSuccess = null

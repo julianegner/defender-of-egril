@@ -6,7 +6,6 @@ package de.egril.defender.model
  * members and delegates here, so call sites are unchanged.
  */
 internal object TileMapOps {
-
     fun sandboxPaintTile(
         state: GameState,
         position: Position,
@@ -111,7 +110,10 @@ internal object TileMapOps {
         }
     }
 
-    fun regionTilesOf(state: GameState, zone: TileZone): Map<Position, RegionTile> =
+    fun regionTilesOf(
+        state: GameState,
+        zone: TileZone,
+    ): Map<Position, RegionTile> =
         with(state) {
             movedTileRegions[zone.id] ?: zone.tiles.mapValues { (position, zoneType) ->
                 RegionTile(

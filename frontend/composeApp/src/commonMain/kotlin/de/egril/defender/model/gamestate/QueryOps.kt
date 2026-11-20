@@ -6,55 +6,80 @@ package de.egril.defender.model
  * delegates, so call sites are unchanged.
  */
 internal object QueryOps {
-
-    fun isBridgeAt(state: GameState, position: Position): Boolean =
+    fun isBridgeAt(
+        state: GameState,
+        position: Position,
+    ): Boolean =
         with(state) {
             bridges.any { bridge ->
                 bridge.isActive && bridge.coversPosition(position)
             }
         }
 
-    fun getBridgeAt(state: GameState, position: Position): Bridge? =
+    fun getBridgeAt(
+        state: GameState,
+        position: Position,
+    ): Bridge? =
         with(state) {
             bridges.find { bridge ->
                 bridge.isActive && bridge.coversPosition(position)
             }
         }
 
-    fun getPortalAtEntry(state: GameState, position: Position): Portal? =
+    fun getPortalAtEntry(
+        state: GameState,
+        position: Position,
+    ): Portal? =
         with(state) {
             activePortals.firstOrNull { portal ->
                 portal.entryPosition == position
             }
         }
 
-    fun isPortalEntry(state: GameState, position: Position): Boolean = getPortalAtEntry(state, position) != null
+    fun isPortalEntry(
+        state: GameState,
+        position: Position,
+    ): Boolean = getPortalAtEntry(state, position) != null
 
-    fun isPortalExit(state: GameState, position: Position): Boolean =
+    fun isPortalExit(
+        state: GameState,
+        position: Position,
+    ): Boolean =
         with(state) {
             activePortals.any { portal ->
                 portal.exitPosition == position
             }
         }
 
-    fun isPortalTile(state: GameState, position: Position): Boolean =
-        isPortalEntry(state, position) || isPortalExit(state, position)
+    fun isPortalTile(
+        state: GameState,
+        position: Position,
+    ): Boolean = isPortalEntry(state, position) || isPortalExit(state, position)
 
-    fun isRaftAt(state: GameState, position: Position): Boolean =
+    fun isRaftAt(
+        state: GameState,
+        position: Position,
+    ): Boolean =
         with(state) {
             rafts.any { raft ->
                 raft.isActive && raft.currentPosition.value == position
             }
         }
 
-    fun getRaftAt(state: GameState, position: Position): Raft? =
+    fun getRaftAt(
+        state: GameState,
+        position: Position,
+    ): Raft? =
         with(state) {
             rafts.find { raft ->
                 raft.isActive && raft.currentPosition.value == position
             }
         }
 
-    fun effectiveRange(state: GameState, defender: Defender): Int {
+    fun effectiveRange(
+        state: GameState,
+        defender: Defender,
+    ): Int {
         val hasDoubleReachBuff =
             state.activeSpellEffects.any {
                 it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id

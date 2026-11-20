@@ -96,8 +96,6 @@ fun GameViewModel.navigateBackFromGameplay() {
     navigateToWorldMap()
 }
 
-
-
 fun GameViewModel.navigateToSticker() {
     _currentScreen.value = Screen.Sticker
 }

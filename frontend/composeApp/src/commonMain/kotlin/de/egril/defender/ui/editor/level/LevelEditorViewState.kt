@@ -9,7 +9,9 @@ import de.egril.defender.model.Position
  * Editable state of [LevelEditorView]. The view creates it once with `remember` (no keys), so the
  * initial values come from the level the view was first opened with.
  */
-internal class LevelEditorViewState(level: EditorLevel) {
+internal class LevelEditorViewState(
+    level: EditorLevel,
+) {
     private val initialSpawnTimeline = level.spawnTimeline()
 
     var title by mutableStateOf(level.title)
@@ -19,6 +21,7 @@ internal class LevelEditorViewState(level: EditorLevel) {
     var startCoins by mutableStateOf(level.startCoins.toString())
     var startHP by mutableStateOf(level.startHealthPoints.toString())
     var selectedMapId by mutableStateOf(level.mapId)
+
     // The spawn plan is edited as one timeline of turns; loops wrap turn ranges and may be nested.
     var enemySpawns by mutableStateOf(initialSpawnTimeline.spawns.toMutableList())
     var spawnLoops by mutableStateOf(initialSpawnTimeline.loops)
@@ -51,6 +54,7 @@ internal class LevelEditorViewState(level: EditorLevel) {
     var isUploadingToCommunity by mutableStateOf(false)
     var showCommunityUploadConfirm by mutableStateOf(false)
     var showRemoveAllTurnsDialog by mutableStateOf(false)
+
     // Track the maximum turn number explicitly to support empty turns
     var maxTurnNumber by mutableStateOf(initialSpawnTimeline.maxTurn)
     var enemySpawnUndoHistory by mutableStateOf(listOf<EnemySpawnEditorSnapshot>())

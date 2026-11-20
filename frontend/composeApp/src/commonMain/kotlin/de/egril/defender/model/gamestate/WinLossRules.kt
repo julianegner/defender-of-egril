@@ -5,7 +5,6 @@ package de.egril.defender.model
  * (via `with(state)`). [GameState] keeps the public members and delegates here, so call sites are unchanged.
  */
 internal object WinLossRules {
-
     fun isLevelWon(state: GameState): Boolean {
         with(state) {
             // Sandbox levels can never be won, even when all enemies are gone.

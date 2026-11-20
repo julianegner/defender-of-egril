@@ -121,7 +121,9 @@ class GameViewModelDemoModeTest {
                     ),
                 )
                 // internal members get a mangled JVM name, so match by prefix
-                Class.forName("de.egril.defender.ui.GameViewModelProfilesKt").declaredMethods
+                Class
+                    .forName("de.egril.defender.ui.GameViewModelProfilesKt")
+                    .declaredMethods
                     .first { it.name.startsWith("surfaceNextPendingMessageIfIdle") }
                     .apply { isAccessible = true }
                     .invoke(null, viewModel)

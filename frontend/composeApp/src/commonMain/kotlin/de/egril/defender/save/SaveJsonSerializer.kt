@@ -7,30 +7,21 @@ import de.egril.defender.model.*
  * Delegates to the codecs in the `json` subpackage.
  */
 object SaveJsonSerializer {
-    fun serializeWorldMapSave(worldMap: WorldMapSave): String =
-        WorldMapJsonCodec.serializeWorldMapSave(worldMap)
+    fun serializeWorldMapSave(worldMap: WorldMapSave): String = WorldMapJsonCodec.serializeWorldMapSave(worldMap)
 
-    fun deserializeWorldMapSave(json: String): WorldMapSave? =
-        WorldMapJsonCodec.deserializeWorldMapSave(json)
+    fun deserializeWorldMapSave(json: String): WorldMapSave? = WorldMapJsonCodec.deserializeWorldMapSave(json)
 
-    fun serializeSavedGame(savedGame: SavedGame): String =
-        SavedGameJsonWriter.serializeSavedGame(savedGame)
+    fun serializeSavedGame(savedGame: SavedGame): String = SavedGameJsonWriter.serializeSavedGame(savedGame)
 
-    fun deserializeSavedGame(json: String): SavedGame? =
-        SavedGameJsonReader.deserializeSavedGame(json)
+    fun deserializeSavedGame(json: String): SavedGame? = SavedGameJsonReader.deserializeSavedGame(json)
 
-    fun serializeSaveGameMetadata(metadata: SaveGameMetadata): String =
-        SaveMetadataJsonCodec.serializeSaveGameMetadata(metadata)
+    fun serializeSaveGameMetadata(metadata: SaveGameMetadata): String = SaveMetadataJsonCodec.serializeSaveGameMetadata(metadata)
 
-    fun serializeLevelHandoffSave(handoff: LevelHandoffSave): String =
-        LevelHandoffJsonCodec.serializeLevelHandoffSave(handoff)
+    fun serializeLevelHandoffSave(handoff: LevelHandoffSave): String = LevelHandoffJsonCodec.serializeLevelHandoffSave(handoff)
 
-    fun deserializeLevelHandoffSave(json: String): LevelHandoffSave? =
-        LevelHandoffJsonCodec.deserializeLevelHandoffSave(json)
+    fun deserializeLevelHandoffSave(json: String): LevelHandoffSave? = LevelHandoffJsonCodec.deserializeLevelHandoffSave(json)
 
-    fun serializePlayerProfiles(profiles: PlayerProfiles): String =
-        PlayerProfilesJsonCodec.serializePlayerProfiles(profiles)
+    fun serializePlayerProfiles(profiles: PlayerProfiles): String = PlayerProfilesJsonCodec.serializePlayerProfiles(profiles)
 
-    fun deserializePlayerProfiles(json: String): PlayerProfiles? =
-        PlayerProfilesJsonCodec.deserializePlayerProfiles(json)
+    fun deserializePlayerProfiles(json: String): PlayerProfiles? = PlayerProfilesJsonCodec.deserializePlayerProfiles(json)
 }

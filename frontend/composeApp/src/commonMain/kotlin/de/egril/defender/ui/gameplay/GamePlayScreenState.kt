@@ -17,8 +17,10 @@ internal class GamePlayScreenState {
     var selectedTargetPosition by mutableStateOf<Position?>(null)
     var showCheatDialog by mutableStateOf(false)
     var showSandboxTools by mutableStateOf(false)
+
     // Sandbox: active map tile-paint type; when non-null, tapping a tile repaints it to this type.
     var sandboxPaintTileType by mutableStateOf<de.egril.defender.editor.TileType?>(null)
+
     // Sandbox: water flow direction/speed applied when painting RIVER tiles.
     var sandboxRiverFlow by mutableStateOf(de.egril.defender.model.RiverFlow.EAST)
     var sandboxRiverSpeed by mutableStateOf(1)
@@ -41,16 +43,19 @@ internal class GamePlayScreenState {
     var splitSelectorExpanded by mutableStateOf(false)
     var tabScrollPosition by mutableStateOf<Position?>(null) // Tab-triggered scroll-to-tower
     var keyboardSelectedBuildTile by mutableStateOf<Position?>(null)
+
     // Position of the keyboard cursor while placing a support object or targeting a spell on the map.
     // The cursor cycles through the valid placement/target tiles (supportObjectPlacementTiles /
     // spellTargetPositions); the place key confirms the highlighted tile and a cancel key exits.
     var keyboardPlacementTile by mutableStateOf<Position?>(null)
     var nextSpawnPointIndex by mutableStateOf(0)
     var keyboardSpellFocusIndex by mutableStateOf(0)
+
     // Index (into visibleSupportSlots) of the support box under the keyboard-navigation cursor, or
     // null while the support bar is not being navigated. Left/right move the cursor, a select key
     // activates the focused box.
     var supportFocusIndex by mutableStateOf<Int?>(null)
+
     // Non-null means the keyboard undo/sell shortcut was pressed and the confirmation dialog is open.
     // The Boolean flag indicates whether this is an "undo" (true) or "sell" (false) operation.
     var keyboardUndoOrSellConfirmation by mutableStateOf<Pair<Int, Boolean>?>(null)
@@ -64,10 +69,12 @@ internal class GamePlayScreenState {
     var currentDigOutcome by mutableStateOf<DigOutcome?>(null)
     var currentDragonName by mutableStateOf<String?>(null) // Track dragon name for dig outcome
     var showDigOutcomeDialog by mutableStateOf(false)
+
     // Pending dig outcome waiting for the mine-dig animation to finish (1.5 s when animations ON)
     var pendingDigOutcome by mutableStateOf<DigOutcome?>(null)
     var pendingDigKey by mutableStateOf(0)
     var showOverlay by mutableStateOf(false) // MutableState for overlay visibility
+
     // 0 = both legend+enemies, 1 = legend only, 2 = enemy list only
     var overlayMode by mutableStateOf(0)
     var showSaveDialog by mutableStateOf(false) // Save dialog with comment

@@ -5,7 +5,6 @@ import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import kotlin.math.min
 
-
 /**
  * Handles special enemy abilities like summoning demons, healing, disabling towers, and building bridges.
  */
@@ -24,17 +23,19 @@ class EnemyAbilitySystem(
     private val villainTower = VillainTowerAbilities(state)
     private val swarm = SwarmAbilities(state, isWithinBounds = ::isWithinBounds, isTileOccupiedByStaticObject = ::isTileOccupiedByStaticObject)
     private val silas = SilasAbilities(state, isTileOccupiedByStaticObject = ::isTileOccupiedByStaticObject)
-    private val morvath = MorvathAbilities(
-        state,
-        isWithinBounds = ::isWithinBounds,
-        isTileOccupiedByStaticObject = ::isTileOccupiedByStaticObject,
-    )
-    private val spider = SpiderAbilities(
-        state,
-        swarm = swarm,
-        isTileOccupiedByStaticObject = ::isTileOccupiedByStaticObject,
-        maxSwarmSpawnSearchRings = MAX_SWARM_SPAWN_SEARCH_RINGS,
-    )
+    private val morvath =
+        MorvathAbilities(
+            state,
+            isWithinBounds = ::isWithinBounds,
+            isTileOccupiedByStaticObject = ::isTileOccupiedByStaticObject,
+        )
+    private val spider =
+        SpiderAbilities(
+            state,
+            swarm = swarm,
+            isTileOccupiedByStaticObject = ::isTileOccupiedByStaticObject,
+            maxSwarmSpawnSearchRings = MAX_SWARM_SPAWN_SEARCH_RINGS,
+        )
     private val baron =
         BaronAbilities(
             state = state,
@@ -44,11 +45,12 @@ class EnemyAbilitySystem(
     private val xarithon = XarithonAbilities(state)
     private val morguk = MorgukAbilities(state)
     private val witch = WitchAbilities(state, pathfinding)
-    private val villainAuras = VillainAuraAbilities(
-        state,
-        applyCovenHealBoost = witch::applyCovenHealBoost,
-        applyCovenDisableBoost = witch::applyCovenDisableBoost,
-    )
+    private val villainAuras =
+        VillainAuraAbilities(
+            state,
+            applyCovenHealBoost = witch::applyCovenHealBoost,
+            applyCovenDisableBoost = witch::applyCovenDisableBoost,
+        )
     private val snotlings =
         SnotlingAbilities(
             state = state,
@@ -297,6 +299,7 @@ class EnemyAbilitySystem(
     /**
      * Zythar summons blue and red demons plus demonling scouts every 3 enemy turns.
      */
+
     /**
      * Called after every demonling movement step to check whether it opens a rift portal.
      * Delegates to [ZytharPortalAbilities].

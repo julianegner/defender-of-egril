@@ -214,8 +214,7 @@ data class GameState(
      * [de.egril.defender.editor.TileType.RIVER], the river flow to use (ignored for other types).
      * Target tiles regain their original target metadata. Does not bump [mapEditVersion].
      */
-    fun replaceTiles(changes: Map<Position, Pair<de.egril.defender.editor.TileType, RiverTile?>>) =
-        TileMapOps.replaceTiles(this, changes)
+    fun replaceTiles(changes: Map<Position, Pair<de.egril.defender.editor.TileType, RiverTile?>>) = TileMapOps.replaceTiles(this, changes)
 
     /** The tile type [position] has on the original (unmodified) map. */
     fun originalTileTypeAt(position: Position): de.egril.defender.editor.TileType = originalTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
@@ -259,8 +258,7 @@ data class GameState(
      */
     fun refreshZoneTiles(
         positions: Collection<Position>,
-    ): Map<Position, Pair<de.egril.defender.editor.TileType, de.egril.defender.editor.TileType>> =
-        TileMapOps.refreshZoneTiles(this, positions)
+    ): Map<Position, Pair<de.egril.defender.editor.TileType, de.egril.defender.editor.TileType>> = TileMapOps.refreshZoneTiles(this, positions)
 
     /**
      * Build a position -> [de.egril.defender.editor.TileType] map for every non-blocked tile in [lvl].
@@ -339,20 +337,24 @@ data class GameState(
      */
     fun retargetEnemiesFromTakenTarget(takenPosition: Position) = TargetPlacementOps.retargetEnemiesFromTakenTarget(this, takenPosition)
 
-    fun resolveWaypointNextTarget(waypointNextTarget: Position, from: Position): Position =
-        TargetPlacementOps.resolveWaypointNextTarget(this, waypointNextTarget, from)
+    fun resolveWaypointNextTarget(
+        waypointNextTarget: Position,
+        from: Position,
+    ): Position = TargetPlacementOps.resolveWaypointNextTarget(this, waypointNextTarget, from)
 
-    fun canPlaceDefender(type: DefenderType, extraCost: Int = 0): Boolean =
-        TargetPlacementOps.canPlaceDefender(this, type, extraCost)
+    fun canPlaceDefender(
+        type: DefenderType,
+        extraCost: Int = 0,
+    ): Boolean = TargetPlacementOps.canPlaceDefender(this, type, extraCost)
 
     fun canAffordTowerButton(type: DefenderType): Boolean = TargetPlacementOps.canAffordTowerButton(this, type)
 
-    fun keyboardPlacementCandidates(type: DefenderType): List<Position> =
-        TargetPlacementOps.keyboardPlacementCandidates(this, type)
+    fun keyboardPlacementCandidates(type: DefenderType): List<Position> = TargetPlacementOps.keyboardPlacementCandidates(this, type)
 
-    fun isAutoTowerBasePathSpot(type: DefenderType, position: Position): Boolean =
-        TargetPlacementOps.isAutoTowerBasePathSpot(this, type, position)
-
+    fun isAutoTowerBasePathSpot(
+        type: DefenderType,
+        position: Position,
+    ): Boolean = TargetPlacementOps.isAutoTowerBasePathSpot(this, type, position)
 
     fun canUpgradeDefender(defender: Defender): Boolean = defender.type != DefenderType.ALTAR && (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
 

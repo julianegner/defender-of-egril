@@ -6,7 +6,6 @@ package de.egril.defender.model
  * the public members and delegates here, so call sites are unchanged.
  */
 internal object SpawnLoopOps {
-
     fun advanceSpawnGroups(
         state: GameState,
         root: SpawnGroup,
@@ -22,9 +21,10 @@ internal object SpawnLoopOps {
             // the start of the turn so a loop predicate (e.g. CONDITION/UNIT_ALIVE) is evaluated only
             // after the previous iteration's final subturn — including that turn's resolved combat,
             // lasting (acid) damage, traps, and defeated-attacker processing — has fully played out.
-            val cursor = SpawnSequenceRunner.resolve(root, startCursor, turn, stoppedSpawnLoops.toSet()) { group, repetition ->
-                shouldLoop(state, group, repetition)
-            }
+            val cursor =
+                SpawnSequenceRunner.resolve(root, startCursor, turn, stoppedSpawnLoops.toSet()) { group, repetition ->
+                    shouldLoop(state, group, repetition)
+                }
             spawnGroupCursor.value = cursor.copy(lastProcessedTurn = turn)
             SpawnSequenceRunner.spawnsAt(root, cursor, turn)
         }

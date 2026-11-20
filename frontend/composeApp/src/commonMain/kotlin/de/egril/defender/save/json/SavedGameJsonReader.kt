@@ -2,8 +2,9 @@ package de.egril.defender.save
 
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
-import de.egril.defender.save.SavedEntityJsonParser.parsePosition
+import de.egril.defender.save.SaveMetadataJsonCodec.extractCommentValue
 import de.egril.defender.save.SavedEntityJsonParser.parseMovedTileRegion
+import de.egril.defender.save.SavedEntityJsonParser.parsePosition
 import de.egril.defender.save.SavedEntityJsonParser.parseSavedAttacker
 import de.egril.defender.save.SavedEntityJsonParser.parseSavedBarricade
 import de.egril.defender.save.SavedEntityJsonParser.parseSavedBridge
@@ -14,7 +15,6 @@ import de.egril.defender.save.SavedEntityJsonParser.parseSavedPortal
 import de.egril.defender.save.SavedEntityJsonParser.parseSavedRaft
 import de.egril.defender.save.SavedEntityJsonParser.parseSavedSpellEffect
 import de.egril.defender.save.SavedEntityJsonParser.parseSavedTrap
-import de.egril.defender.save.SaveMetadataJsonCodec.extractCommentValue
 import de.egril.defender.save.WorldMapJsonCodec.deserializeWorldMapSave
 import de.egril.defender.utils.EventMapImageJson
 import de.egril.defender.utils.JsonUtils

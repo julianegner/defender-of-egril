@@ -722,4 +722,3 @@ internal fun plannedEnemyPathForDisplay(
 
     return fullPath.takeIf { it.size > 1 }
 }
-

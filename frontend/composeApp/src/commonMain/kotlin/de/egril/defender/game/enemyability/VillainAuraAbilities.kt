@@ -12,7 +12,6 @@ internal class VillainAuraAbilities(
     private val applyCovenHealBoost: (Attacker, VillainAbility) -> Unit,
     private val applyCovenDisableBoost: (Attacker, VillainAbility) -> Unit,
 ) {
-
     /**
      * Applies the aura of every villain that is currently on the battlefield to all friendly units
      * within the ability's range while it is on the battlefield. War Cry style abilities activate on

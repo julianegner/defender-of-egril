@@ -12,7 +12,10 @@ import de.egril.defender.utils.JsonUtils
  * Parses the `initialData` section of an editor level JSON. Prefers the nested format and falls back to the
  * legacy flat format. Returns null when no initial data was found.
  */
-internal fun parseInitialData(dataJson: String, id: String): InitialData? {
+internal fun parseInitialData(
+    dataJson: String,
+    id: String,
+): InitialData? {
     var initialDefenders = mutableListOf<InitialDefender>()
     var initialAttackers = mutableListOf<InitialAttacker>()
     var initialTraps = mutableListOf<InitialTrap>()

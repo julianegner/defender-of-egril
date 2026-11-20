@@ -6,8 +6,9 @@ import de.egril.defender.model.*
 /**
  * Abilities of Morguk Bonewhisper, the undead necromancer.
  */
-internal class MorgukAbilities(private val state: GameState) {
-
+internal class MorgukAbilities(
+    private val state: GameState,
+) {
     /**
      * Spirit Summon: Morguk Bonewhisper conjures goblins on every adjacent path tile.
      * Each goblin spawns at the same level as Morguk. Activates every 3 turns.

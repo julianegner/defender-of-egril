@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
-import de.egril.defender.model.AttackerType
 import de.egril.defender.model.Attacker
+import de.egril.defender.model.AttackerType
 import de.egril.defender.model.AutoAttackAvailability
 import de.egril.defender.model.DefenderType
 import de.egril.defender.model.DigOutcome
