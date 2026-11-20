@@ -31,6 +31,7 @@ internal class RazzikAbilities(
     private val state: GameState,
     private val barricadeSystem: BarricadeSystem,
     private val bridgeSystem: BridgeSystem,
+    private val random: Random = Random.Default,
 ) {
     /**
      * Razzik fires [RAZZIK_ROCKETS_PER_ROUND] rockets every enemy turn. Each rocket picks a random
@@ -45,13 +46,13 @@ internal class RazzikAbilities(
 
     private fun fireRazzikRocket(razzik: Attacker) {
         val origin = razzik.position.value
-        val target = razzikRocketTargets(origin).randomOrNull() ?: return
+        val target = razzikRocketTargets(origin).randomOrNull(random) ?: return
         val path = hexLine(origin, target.position)
-        val damage = Random.nextInt(1, 7) * 10
+        val damage = random.nextInt(1, 7) * 10
 
-        if (Random.nextInt(RAZZIK_CRASH_ODDS) == 0) {
+        if (random.nextInt(RAZZIK_CRASH_ODDS) == 0) {
             // Rocket crashes somewhere after leaving the launcher; the tile it lands on is the explosion.
-            val crashPosition = path.drop(1).randomOrNull() ?: return
+            val crashPosition = path.drop(1).randomOrNull(random) ?: return
             state.rocketAttackEffects.add(
                 RocketAttackEffect(
                     sourcePosition = origin,

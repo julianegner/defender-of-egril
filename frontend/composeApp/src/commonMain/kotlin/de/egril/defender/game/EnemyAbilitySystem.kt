@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.config.LogConfig
 import de.egril.defender.model.*
 import kotlin.math.min
+import kotlin.random.Random
 
 /**
  * Handles special enemy abilities like summoning demons, healing, disabling towers, and building bridges.
@@ -11,6 +12,7 @@ import kotlin.math.min
 class EnemyAbilitySystem(
     private val state: GameState,
     private val pathfinding: PathfindingSystem,
+    random: Random = Random.Default,
 ) {
     private val bridgeSystem = BridgeSystem(state)
     private val barricadeSystem = BarricadeSystem(state)
@@ -19,7 +21,7 @@ class EnemyAbilitySystem(
     private val summon = SummonAbilities(state, zytharPortal)
     private val garokk = GarokkAbilities(state)
     private val runemaster = RunemasterAbilities(state, barricadeSystem)
-    private val razzik = RazzikAbilities(state, barricadeSystem, bridgeSystem)
+    private val razzik = RazzikAbilities(state, barricadeSystem, bridgeSystem, random)
     private val villainTower = VillainTowerAbilities(state)
     private val swarm = SwarmAbilities(state, isWithinBounds = ::isWithinBounds, isTileOccupiedByStaticObject = ::isTileOccupiedByStaticObject)
     private val silas = SilasAbilities(state, isTileOccupiedByStaticObject = ::isTileOccupiedByStaticObject)
