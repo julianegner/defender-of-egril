@@ -1,6 +1,7 @@
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import java.util.Properties
+import org.gradle.api.tasks.testing.Test
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
@@ -30,6 +31,34 @@ if (configureAndroid) {
 
 // Build configuration output directory
 val buildConfigOutputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin")
+
+val repositoryImageCatalogDir = layout.buildDirectory.dir("generated/source/repositoryImages/commonMain/kotlin")
+val generateRepositoryImageCatalog = tasks.register("generateRepositoryImageCatalog") {
+    val images = fileTree("src/commonMain/composeResources/files/repository/levels") {
+        include("*.png", "*.jpg", "*.jpeg", "*.webp", "*.PNG", "*.JPG", "*.JPEG", "*.WEBP")
+    }
+    inputs.files(images)
+    outputs.dir(repositoryImageCatalogDir)
+    doLast {
+        val names = images.files.map { it.name }.sorted().joinToString(",\n") {
+            "        \"" + it.replace("\\", "\\\\").replace("\"", "\\\"").replace("$", "\\$") + "\""
+        }
+        val output = repositoryImageCatalogDir.get().file("de/egril/defender/editor/RepositoryImageCatalog.kt").asFile
+        output.parentFile.mkdirs()
+        output.writeText(
+            """
+            |package de.egril.defender.editor
+            |
+            |/** Event image files bundled from the repository levels directory. */
+            |object RepositoryImageCatalog {
+            |    val fileNames: List<String> = listOf(
+            |$names
+            |    )
+            |}
+            """.trimMargin(),
+        )
+    }
+}
 
 // Impressum flag - can be set via gradle.properties or command line: -PwithImpressum=true
 val withImpressum: Boolean = project.findProperty("withImpressum")?.toString()?.toBoolean() ?: false
@@ -75,10 +104,10 @@ val macOsPackageVersion: String = run {
 // Task to generate BuildConfig with current commit hash
 val generateBuildConfig = tasks.register("generateBuildConfig") {
     val outputFile = buildConfigOutputDir.get().file("de/egril/defender/AppBuildInfo.kt")
-    
+
     outputs.dir(buildConfigOutputDir)
     outputs.upToDateWhen { false } // Always regenerate to ensure latest commit hash
-    
+
     doLast {
         val commitHash = try {
             val process = Runtime.getRuntime().exec("git rev-parse --short HEAD")
@@ -95,7 +124,7 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
             logger.warn("Failed to get git commit hash: ${e.message}")
             "unknown"
         }
-        
+
         val commitDate = try {
             val process = Runtime.getRuntime().exec("git show -s --format=%ci HEAD")
             val date = process.inputStream.bufferedReader().use { it.readText().trim() }
@@ -110,7 +139,7 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
             logger.warn("Failed to get git commit date: ${e.message}")
             "unknown"
         }
-        
+
         val commitMessage = try {
             val process = Runtime.getRuntime().exec(arrayOf("git", "log", "-1", "--pretty=%B"))
             val message = process.inputStream.bufferedReader().use { it.readText().trim() }
@@ -129,10 +158,10 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
             logger.warn("Failed to get git commit message: ${e.message}")
             "unknown"
         }
-        
+
         val versionName = appVersion
         val isBeta = versionName.contains("-beta")
-        
+
         val buildConfigContent = """
             |package de.egril.defender
             |
@@ -150,12 +179,12 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
             |    const val COMMIT_MESSAGE = "$commitMessage"
             |}
             |""".trimMargin()
-        
+
         outputFile.asFile.apply {
             parentFile.mkdirs()
             writeText(buildConfigContent)
         }
-        
+
         logger.info("Generated AppBuildInfo with commit hash: $commitHash, date: $commitDate")
     }
 }
@@ -164,7 +193,7 @@ val generateBuildConfig = tasks.register("generateBuildConfig") {
 val generateWithImpressumConstant = tasks.register("generateWithImpressumConstant") {
     val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin").get().asFile
     outputs.dir(outputDir)
-    
+
     doLast {
         val file = File(outputDir, "de/egril/defender/WithImpressum.kt")
         logger.info("Generating WithImpressum.kt with withImpressum: $withImpressum")
@@ -192,7 +221,7 @@ val generateOfficialEditModeConstant = tasks.register("generateOfficialEditModeC
     val outputDir = layout.buildDirectory.dir("generated/source/buildConfig/commonMain/kotlin").get().asFile
     outputs.dir(outputDir)
     outputs.upToDateWhen { false } // Always regenerate to ensure latest property value
-    
+
     doLast {
         val file = File(outputDir, "de/egril/defender/OfficialEditMode.kt")
         logger.info("Generating OfficialEditMode.kt with official: $official")
@@ -206,7 +235,7 @@ val generateOfficialEditModeConstant = tasks.register("generateOfficialEditModeC
             | * Official editing mode configuration flag
             | * This file is auto-generated during build
             | * Set via gradle property: -Pofficial=true
-            | * 
+            | *
             | * When enabled, allows editing of official game data (maps and levels) directly.
             | * A warning will be shown on game close if official data has been modified.
             | */
@@ -260,13 +289,13 @@ kotlin {
             }
         }
     }
-    
+
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
     }
-    
+
     jvm("desktop")
-    
+
     @OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         browser {
@@ -276,7 +305,7 @@ kotlin {
         }
         binaries.executable()
     }
-    
+
     listOf(
         iosArm64()
     ).forEach { iosTarget ->
@@ -285,24 +314,25 @@ kotlin {
             isStatic = true
         }
     }
-    
+
     sourceSets {
         val desktopMain = getByName("desktopMain")
         val desktopTest = getByName("desktopTest")
-        
+
         // Create iosMain source set for iOS targets
         val iosMain = create("iosMain") {
             dependsOn(commonMain.get())
         }
-        
+
         // Connect each iOS target's main compilation to iosMain
         val iosArm64Main = getByName("iosArm64Main")
-        
+
         iosArm64Main.dependsOn(iosMain)
-        
+
         // Add generated source directory to commonMain
         commonMain {
             kotlin.srcDir(buildConfigOutputDir)
+            kotlin.srcDir(repositoryImageCatalogDir)
             kotlin.srcDirs(
                 File(
                     layout.buildDirectory.get().asFile.path,
@@ -310,12 +340,15 @@ kotlin {
                 )
             )
         }
-        
+
         // Create jvmMain as intermediate source set shared by Android and Desktop
         val jvmMain = create("jvmMain") {
             dependsOn(commonMain.get())
         }
-        
+        jvmMain.dependencies {
+            implementation(project(":png-encoder"))
+        }
+
         // Configure desktopMain to depend on jvmMain
         desktopMain.dependsOn(jvmMain)
 
@@ -342,6 +375,7 @@ kotlin {
             }
         }
         commonMain.dependencies {
+            implementation(project(":mapgen"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
@@ -365,7 +399,6 @@ kotlin {
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.jlayer)
-            implementation(project(":png-encoder"))
         }
         desktopTest.dependencies {
             implementation(libs.compose.ui.test.junit4)
@@ -373,7 +406,7 @@ kotlin {
         }
         wasmJsMain.dependencies {
         }
-        
+
         iosMain.dependencies {
             implementation(libs.oidc.appsupport)
         }
@@ -390,6 +423,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateBuildConfig)
     dependsOn(generateWithImpressumConstant)
     dependsOn(generateOfficialEditModeConstant)
+    dependsOn(generateRepositoryImageCatalog)
 }
 
 // The compose-multiplatform-localize plugin's GenerateTranslationsTask only declares resourcesDir and
@@ -408,6 +442,10 @@ tasks.named("generateTranslateFile").configure {
         .withPathSensitivity(org.gradle.api.tasks.PathSensitivity.RELATIVE)
 }
 
+tasks.withType<Test>().configureEach {
+    systemProperty("composeApp.projectDir", projectDir.absolutePath)
+}
+
 
 if (configureAndroid) {
     extensions.configure<ApplicationExtension> {
@@ -420,10 +458,10 @@ if (configureAndroid) {
             targetSdk = libs.versions.android.targetSdk.get().toInt()
             versionCode = appVersionCode
             versionName = appVersion
-            
+
             // Redirect scheme for OIDC (kotlin-multiplatform-oidc library)
             addManifestPlaceholders(mapOf("oidcRedirectScheme" to "egril"))
-            
+
             // Configure test instrumentation runner
             testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         }
@@ -726,7 +764,10 @@ afterEvaluate {
         )
     }
 
-    tasks.matching { it.name.contains("wasmJsBrowser", ignoreCase = true) }.configureEach {
+    tasks.matching {
+        it.name.contains("wasmJsBrowser", ignoreCase = true) &&
+            !it.name.startsWith("clean", ignoreCase = true)
+    }.configureEach {
         dependsOn(sanitizeWasmImportObjects)
     }
 }
@@ -734,11 +775,12 @@ afterEvaluate {
 compose.desktop {
     application {
         mainClass = "de.egril.defender.MainKt"
+        jvmArgs += listOf("-Xmx8g")
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Exe, TargetFormat.Deb)
             packageVersion = appVersion
-            
+
             macOS {
                 bundleID = "de.egril.defender"
                 packageName = "defender-of-egril"
@@ -746,7 +788,7 @@ compose.desktop {
                 // constraint while keeping the real version on all other platforms.
                 packageVersion = macOsPackageVersion
             }
-            
+
             windows {
                 menuGroup = "Defender of Egril"
                 packageName = "DefenderOfEgril"
@@ -754,7 +796,7 @@ compose.desktop {
                 dirChooser = true
                 upgradeUuid = "D5F5E5C5-B5A5-95A5-85A5-75A565A555A5"
             }
-            
+
             linux {
                 packageName = "defender-of-egril"
                 menuGroup = "Game"

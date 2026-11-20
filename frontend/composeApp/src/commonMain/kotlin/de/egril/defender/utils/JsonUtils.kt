@@ -160,4 +160,60 @@ object JsonUtils {
         }
         return sb.toString()
     }
+
+    fun extractJsonArrayForKey(
+        json: String,
+        key: String,
+    ): String = extractDelimitedSectionForKey(json, key, '[', ']')
+
+    fun extractJsonObjectForKey(
+        json: String,
+        key: String,
+    ): String = extractDelimitedSectionForKey(json, key, '{', '}')
+
+    private fun extractDelimitedSectionForKey(
+        json: String,
+        key: String,
+        open: Char,
+        close: Char,
+    ): String {
+        val keyIndex = json.indexOf("\"$key\"")
+        if (keyIndex == -1) return ""
+        val colonIndex = json.indexOf(':', keyIndex)
+        if (colonIndex == -1) return ""
+
+        var startIndex = colonIndex + 1
+        while (startIndex < json.length && json[startIndex].isWhitespace()) {
+            startIndex++
+        }
+        if (startIndex >= json.length || json[startIndex] != open) return ""
+
+        var depth = 1
+        var index = startIndex + 1
+        var inString = false
+        while (index < json.length && depth > 0) {
+            val char = json[index]
+            if (inString) {
+                if (char == '\\') {
+                    index += 2
+                    continue
+                } else if (char == '"') {
+                    inString = false
+                }
+            } else {
+                when (char) {
+                    '"' -> inString = true
+                    open -> depth++
+                    close -> depth--
+                }
+            }
+            index++
+        }
+
+        return if (depth == 0) {
+            json.substring(startIndex + 1, index - 1)
+        } else {
+            ""
+        }
+    }
 }

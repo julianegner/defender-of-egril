@@ -11,6 +11,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
+import de.egril.defender.editor.getCommunityLevel
+import de.egril.defender.editor.getLevel
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.save.CommunityFileInfo

@@ -31,6 +31,12 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.PrerequisiteValidationResult
+import de.egril.defender.editor.getAllLevels
+import de.egril.defender.editor.getLevelSequence
+import de.egril.defender.editor.isLevelReadyToPlay
+import de.egril.defender.editor.saveLevel
+import de.egril.defender.editor.updateLevelSequence
+import de.egril.defender.editor.validateAllPrerequisites
 import de.egril.defender.ui.LevelSequenceScrollbar
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.WarningIcon
@@ -539,6 +545,9 @@ fun LevelTreeCard(
     modifier: Modifier = Modifier,
 ) {
     val isReady = EditorStorage.isLevelReadyToPlay(level)
+    val spawnEntries = remember(level.enemySpawns, level.spawnGroups) { level.configuredSpawnEntries() }
+    val villainTypes = remember(spawnEntries) { spawnEntries.presentVillainTypes() }
+    val villainSummary = remember(spawnEntries) { spawnEntries.presentVillainSummary { it.villainName ?: it.displayName } }
 
     Card(
         modifier = modifier.clickable { onClick() },
@@ -591,9 +600,16 @@ fun LevelTreeCard(
 
                 // Stats
                 Text(
-                    text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                    text = "${stringResource(Res.string.enemies)}: ${level.configuredSpawnCount()}",
                     style = MaterialTheme.typography.bodySmall,
                 )
+                if (villainSummary.isNotEmpty()) {
+                    Text(
+                        text = "${stringResource(if (villainTypes.size > 1) Res.string.villains else Res.string.villain)}: $villainSummary",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Red,
+                    )
+                }
                 Text(
                     text = "${level.startCoins} coins | ${level.startHealthPoints} HP",
                     style = MaterialTheme.typography.bodySmall,

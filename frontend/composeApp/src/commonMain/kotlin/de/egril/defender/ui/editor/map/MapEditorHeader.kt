@@ -2,8 +2,8 @@ package de.egril.defender.ui.editor.map
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -17,13 +17,17 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
+import de.egril.defender.editor.MapValidationIssue
 import de.egril.defender.editor.TileType
-import de.egril.defender.ui.editor.RiverFlowIndicator
-import de.egril.defender.ui.editor.TileTypeButton
-import de.egril.defender.ui.editor.getTileColor
+import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
+import de.egril.defender.ui.TooltipWrapper
+import de.egril.defender.ui.icon.CrosshairIcon
 import de.egril.defender.ui.icon.MagnifyingGlassIcon
+import de.egril.defender.ui.icon.RedCircleIcon
 import defender_of_egril.composeapp.generated.resources.*
 
 /**
@@ -38,62 +42,111 @@ fun MapEditorHeader(
     onMapAuthorChange: (String) -> Unit,
     mapToolingInfo: String,
     onMapToolingInfoChange: (String) -> Unit,
-    selectedTileType: TileType,
-    onTileTypeChange: (TileType) -> Unit,
-    selectedRiverFlow: de.egril.defender.model.RiverFlow,
-    onRiverFlowChange: (de.egril.defender.model.RiverFlow) -> Unit,
-    selectedRiverSpeed: Int,
-    onRiverSpeedChange: (Int) -> Unit,
+    allowNoBuildableTiles: Boolean,
+    onAllowNoBuildableTilesChange: (Boolean) -> Unit,
+    allowNoDirectPath: Boolean,
+    onAllowNoDirectPathChange: (Boolean) -> Unit,
+    mapWidth: Int,
+    mapHeight: Int,
     zoomLevel: Float,
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
-    onChangeAllNoPlayToPath: () -> Unit,
     isExpanded: Boolean,
     onToggleExpanded: () -> Unit,
+    selectedTileType: TileType = TileType.PATH,
+    onTileTypeChange: (TileType) -> Unit = {},
+    selectedRiverFlow: de.egril.defender.model.RiverFlow = de.egril.defender.model.RiverFlow.NORTH_EAST,
+    onRiverFlowChange: (de.egril.defender.model.RiverFlow) -> Unit = {},
+    selectedRiverSpeed: Int = 1,
+    onRiverSpeedChange: (Int) -> Unit = {},
     selectedTargetName: String = "",
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
+    onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
+    onOpenMapPreview: () -> Unit = {},
+    mapOverlayAlpha: Float = 0.7f,
+    onMapOverlayAlphaChange: (Float) -> Unit = {},
+    showCrosshair: Boolean = false,
+    onToggleCrosshair: () -> Unit = {},
+    onUndo: () -> Unit = {},
+    canUndo: Boolean = false,
+    onRedo: () -> Unit = {},
+    canRedo: Boolean = false,
 ) {
+    CollapsedMapEditorHeader(
+        map = map,
+        mapWidth = mapWidth,
+        mapHeight = mapHeight,
+        onExpand = onToggleExpanded,
+        backgroundImageLoaded = backgroundImageLoaded,
+        onLoadBackgroundImage = onLoadBackgroundImage,
+        onClearBackgroundImage = onClearBackgroundImage,
+        onOpenMapPreview = onOpenMapPreview,
+        showCrosshair = showCrosshair,
+        onToggleCrosshair = onToggleCrosshair,
+        onUndo = onUndo,
+        canUndo = canUndo,
+        onRedo = onRedo,
+        canRedo = canRedo,
+    )
+
     if (isExpanded) {
-        ExpandedMapEditorHeader(
-            map = map,
-            mapName = mapName,
-            onMapNameChange = onMapNameChange,
-            mapAuthor = mapAuthor,
-            onMapAuthorChange = onMapAuthorChange,
-            mapToolingInfo = mapToolingInfo,
-            onMapToolingInfoChange = onMapToolingInfoChange,
-            selectedTileType = selectedTileType,
-            onTileTypeChange = onTileTypeChange,
-            selectedRiverFlow = selectedRiverFlow,
-            onRiverFlowChange = onRiverFlowChange,
-            selectedRiverSpeed = selectedRiverSpeed,
-            onRiverSpeedChange = onRiverSpeedChange,
-            zoomLevel = zoomLevel,
-            onZoomIn = onZoomIn,
-            onZoomOut = onZoomOut,
-            onChangeAllNoPlayToPath = onChangeAllNoPlayToPath,
-            onCollapse = onToggleExpanded,
-            selectedTargetName = selectedTargetName,
-            onTargetNameChange = onTargetNameChange,
-            selectedTargetType = selectedTargetType,
-            onTargetTypeChange = onTargetTypeChange,
-        )
-    } else {
-        CollapsedMapEditorHeader(
-            selectedTileType = selectedTileType,
-            onTileTypeChange = onTileTypeChange,
-            selectedRiverFlow = selectedRiverFlow,
-            onRiverFlowChange = onRiverFlowChange,
-            selectedRiverSpeed = selectedRiverSpeed,
-            onRiverSpeedChange = onRiverSpeedChange,
-            onExpand = onToggleExpanded,
-            selectedTargetName = selectedTargetName,
-            onTargetNameChange = onTargetNameChange,
-            selectedTargetType = selectedTargetType,
-            onTargetTypeChange = onTargetTypeChange,
-        )
+        Dialog(
+            onDismissRequest = onToggleExpanded,
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(0.95f).fillMaxHeight(0.9f),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surface,
+            ) {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState()).padding(8.dp),
+                ) {
+                    ExpandedMapEditorHeader(
+                        map = map,
+                        mapName = mapName,
+                        onMapNameChange = onMapNameChange,
+                        mapAuthor = mapAuthor,
+                        onMapAuthorChange = onMapAuthorChange,
+                        mapToolingInfo = mapToolingInfo,
+                        onMapToolingInfoChange = onMapToolingInfoChange,
+                        allowNoBuildableTiles = allowNoBuildableTiles,
+                        onAllowNoBuildableTilesChange = onAllowNoBuildableTilesChange,
+                        allowNoDirectPath = allowNoDirectPath,
+                        onAllowNoDirectPathChange = onAllowNoDirectPathChange,
+                        mapWidth = mapWidth,
+                        mapHeight = mapHeight,
+                        selectedTileType = selectedTileType,
+                        onTileTypeChange = onTileTypeChange,
+                        selectedRiverFlow = selectedRiverFlow,
+                        onRiverFlowChange = onRiverFlowChange,
+                        selectedRiverSpeed = selectedRiverSpeed,
+                        onRiverSpeedChange = onRiverSpeedChange,
+                        zoomLevel = zoomLevel,
+                        onZoomIn = onZoomIn,
+                        onZoomOut = onZoomOut,
+                        onCollapse = onToggleExpanded,
+                        selectedTargetName = selectedTargetName,
+                        onTargetNameChange = onTargetNameChange,
+                        selectedTargetType = selectedTargetType,
+                        onTargetTypeChange = onTargetTypeChange,
+                        selectedSpawnPointType = selectedSpawnPointType,
+                        onSpawnPointTypeChange = onSpawnPointTypeChange,
+                        backgroundImageLoaded = backgroundImageLoaded,
+                        onLoadBackgroundImage = onLoadBackgroundImage,
+                        onClearBackgroundImage = onClearBackgroundImage,
+                        mapOverlayAlpha = mapOverlayAlpha,
+                        onMapOverlayAlphaChange = onMapOverlayAlphaChange,
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -109,6 +162,12 @@ private fun ExpandedMapEditorHeader(
     onMapAuthorChange: (String) -> Unit,
     mapToolingInfo: String,
     onMapToolingInfoChange: (String) -> Unit,
+    allowNoBuildableTiles: Boolean,
+    onAllowNoBuildableTilesChange: (Boolean) -> Unit,
+    allowNoDirectPath: Boolean,
+    onAllowNoDirectPathChange: (Boolean) -> Unit,
+    mapWidth: Int,
+    mapHeight: Int,
     selectedTileType: TileType,
     onTileTypeChange: (TileType) -> Unit,
     selectedRiverFlow: de.egril.defender.model.RiverFlow,
@@ -118,19 +177,26 @@ private fun ExpandedMapEditorHeader(
     zoomLevel: Float,
     onZoomIn: () -> Unit,
     onZoomOut: () -> Unit,
-    onChangeAllNoPlayToPath: () -> Unit,
     onCollapse: () -> Unit,
     selectedTargetName: String = "",
     onTargetNameChange: (String) -> Unit = {},
     selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
     onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    selectedSpawnPointType: de.egril.defender.model.SpawnPointType = de.egril.defender.model.SpawnPointType.LAND,
+    onSpawnPointTypeChange: (de.egril.defender.model.SpawnPointType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
+    mapOverlayAlpha: Float = 0.7f,
+    onMapOverlayAlphaChange: (Float) -> Unit = {},
 ) {
     Card(
         modifier =
             Modifier
                 .fillMaxWidth()
                 .padding(8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = null,
     ) {
         Column(
             modifier =
@@ -240,113 +306,54 @@ private fun ExpandedMapEditorHeader(
                 singleLine = true,
             )
 
-            // Tile type selector
-            Text(
-                text = stringResource(Res.string.select_tile_type),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(bottom = 4.dp),
-            )
-
-            LazyRow(
+            Row(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(TileType.entries.toList()) { tileType ->
-                    TileTypeButton(
-                        tileType = tileType,
-                        selected = selectedTileType == tileType,
-                        onClick = { onTileTypeChange(tileType) },
-                    )
-                }
+                Text(
+                    text = stringResource(Res.string.allow_no_buildable_tiles),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = allowNoBuildableTiles,
+                    onCheckedChange = onAllowNoBuildableTilesChange,
+                    enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
+                )
+            }
+            if (allowNoBuildableTiles && !map.hasBuildablePlacementTiles()) {
+                Text(
+                    text = stringResource(Res.string.allow_no_buildable_tiles_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
             }
 
-            // River properties (shown when RIVER tile is selected)
-            if (selectedTileType == TileType.RIVER) {
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
-                    colors =
-                        CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                        ),
-                ) {
-                    Column(modifier = Modifier.padding(8.dp)) {
-                        Text(
-                            text = "River Properties",
-                            style = MaterialTheme.typography.bodyMedium,
-                            modifier = Modifier.padding(bottom = 4.dp),
-                        )
-
-                        // Flow direction selector
-                        Text(
-                            text = "Flow Direction:",
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(bottom = 2.dp),
-                        )
-                        LazyRow(
-                            modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            items(de.egril.defender.model.RiverFlow.entries) { flow ->
-                                Button(
-                                    onClick = { onRiverFlowChange(flow) },
-                                    colors =
-                                        ButtonDefaults.buttonColors(
-                                            containerColor =
-                                                if (selectedRiverFlow == flow) {
-                                                    MaterialTheme.colorScheme.primary
-                                                } else {
-                                                    MaterialTheme.colorScheme.secondary
-                                                },
-                                        ),
-                                    modifier = Modifier.height(32.dp),
-                                ) {
-                                    Text(flow.name.replace("_", " "), fontSize = 10.sp)
-                                }
-                            }
-                        }
-
-                        // Flow speed selector
-                        Text(
-                            text = "Flow Speed:",
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(bottom = 2.dp),
-                        )
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            Button(
-                                onClick = { onRiverSpeedChange(1) },
-                                colors =
-                                    ButtonDefaults.buttonColors(
-                                        containerColor =
-                                            if (selectedRiverSpeed == 1) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                MaterialTheme.colorScheme.secondary
-                                            },
-                                    ),
-                                modifier = Modifier.height(32.dp),
-                            ) {
-                                Text(stringResource(Res.string.speed_slow), fontSize = 10.sp)
-                            }
-                            Button(
-                                onClick = { onRiverSpeedChange(2) },
-                                colors =
-                                    ButtonDefaults.buttonColors(
-                                        containerColor =
-                                            if (selectedRiverSpeed == 2) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                MaterialTheme.colorScheme.secondary
-                                            },
-                                    ),
-                                modifier = Modifier.height(32.dp),
-                            ) {
-                                Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
-                            }
-                        }
-                    }
-                }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Text(
+                    text = stringResource(Res.string.allow_no_direct_path),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.weight(1f),
+                )
+                Switch(
+                    checked = allowNoDirectPath,
+                    onCheckedChange = onAllowNoDirectPathChange,
+                    enabled = !map.isOfficial || de.egril.defender.OfficialEditMode.enabled,
+                )
+            }
+            if (allowNoDirectPath) {
+                Text(
+                    text = stringResource(Res.string.allow_no_direct_path_hint),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(bottom = 8.dp),
+                )
             }
 
             // Target properties (shown when TARGET tile is selected)
@@ -402,12 +409,48 @@ private fun ExpandedMapEditorHeader(
                 }
             }
 
-            // Change All NO_PLAY to PATH button
-            Button(
-                onClick = onChangeAllNoPlayToPath,
+            // Background image controls
+            Card(
                 modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                colors =
+                    CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    ),
             ) {
-                Text(stringResource(Res.string.change_all_no_play_to_path))
+                Column(modifier = Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text(
+                        text = stringResource(Res.string.map_background_image),
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = onLoadBackgroundImage,
+                            modifier = Modifier.weight(1f).height(32.dp),
+                        ) {
+                            Text(stringResource(Res.string.map_background_image_load), fontSize = 11.sp)
+                        }
+                        if (backgroundImageLoaded) {
+                            OutlinedButton(
+                                onClick = onClearBackgroundImage,
+                                modifier = Modifier.weight(1f).height(32.dp),
+                            ) {
+                                Text(stringResource(Res.string.map_background_image_clear), fontSize = 11.sp)
+                            }
+                        }
+                    }
+                    if (backgroundImageLoaded) {
+                        Text(
+                            text = stringResource(Res.string.map_background_image_opacity),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                        Slider(
+                            value = mapOverlayAlpha,
+                            onValueChange = onMapOverlayAlphaChange,
+                            valueRange = 0.1f..1.0f,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+                }
             }
 
             ZoomControls(
@@ -425,331 +468,264 @@ private fun ExpandedMapEditorHeader(
  */
 @Composable
 private fun CollapsedMapEditorHeader(
-    selectedTileType: TileType,
-    onTileTypeChange: (TileType) -> Unit,
-    selectedRiverFlow: de.egril.defender.model.RiverFlow,
-    onRiverFlowChange: (de.egril.defender.model.RiverFlow) -> Unit,
-    selectedRiverSpeed: Int,
-    onRiverSpeedChange: (Int) -> Unit,
+    map: EditorMap,
+    mapWidth: Int,
+    mapHeight: Int,
     onExpand: () -> Unit,
-    selectedTargetName: String = "",
-    onTargetNameChange: (String) -> Unit = {},
-    selectedTargetType: de.egril.defender.model.TargetType = de.egril.defender.model.TargetType.STANDARD,
-    onTargetTypeChange: (de.egril.defender.model.TargetType) -> Unit = {},
+    backgroundImageLoaded: Boolean = false,
+    onLoadBackgroundImage: () -> Unit = {},
+    onClearBackgroundImage: () -> Unit = {},
+    onOpenMapPreview: () -> Unit = {},
+    showCrosshair: Boolean = false,
+    onToggleCrosshair: () -> Unit = {},
+    onUndo: () -> Unit = {},
+    canUndo: Boolean = false,
+    onRedo: () -> Unit = {},
+    canRedo: Boolean = false,
 ) {
-    var showRiverPropertiesDialog by remember { mutableStateOf(false) }
-    var showTargetPropertiesDialog by remember { mutableStateOf(false) }
-    var expanded by remember { mutableStateOf(false) }
+    var showNotReadyDialog by remember { mutableStateOf(false) }
+    val validationIssues = remember(map) { map.getValidationIssues() }
 
     Card(
         modifier =
             Modifier
-                .width(280.dp)
+                .fillMaxWidth()
                 .padding(top = 8.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+        border = null,
     ) {
-        Row(
+        FlowRow(
             modifier =
                 Modifier
                     .background(MaterialTheme.colorScheme.surface)
                     .padding(8.dp)
                     .fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            // Tile type dropdown - styled to look like a dropdown
-            Box(modifier = Modifier.weight(1f)) {
-                OutlinedButton(
-                    onClick = { expanded = true },
-                    modifier = Modifier.fillMaxWidth(),
-                    colors =
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor = getTileColor(selectedTileType).copy(alpha = 0.3f),
-                        ),
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            modifier = Modifier.weight(1f),
-                        ) {
-                            // Color indicator box
-                            Box(
-                                modifier =
-                                    Modifier
-                                        .size(16.dp)
-                                        .background(getTileColor(selectedTileType), shape = MaterialTheme.shapes.small),
-                            )
-                            // Tile type name
-                            Text(
-                                text = selectedTileType.name,
-                                fontSize = 11.sp,
-                                modifier = Modifier.weight(1f, fill = false),
-                            )
-                            // River flow indicator if it's a river tile
-                            if (selectedTileType == TileType.RIVER) {
-                                RiverFlowIndicator(
-                                    flowDirection = selectedRiverFlow,
-                                    flowSpeed = selectedRiverSpeed,
-                                    size = 14.dp,
-                                )
-                            }
-                            // Target type indicator if it's a target tile
-                            if (selectedTileType == TileType.TARGET) {
-                                val typeLabel =
-                                    when (selectedTargetType) {
-                                        de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
-                                        de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
-                                    }
-                                Text(
-                                    text = typeLabel,
-                                    fontSize = 9.sp,
-                                    color = MaterialTheme.colorScheme.primary,
-                                )
-                            }
-                        }
-                        // Dropdown triangle
-                        de.egril.defender.ui.icon
-                            .TriangleDownIcon(size = 10.dp)
-                    }
+            val bgImageLabel =
+                if (backgroundImageLoaded) {
+                    stringResource(Res.string.map_background_image_clear)
+                } else {
+                    stringResource(Res.string.map_background_image_load)
                 }
-
-                // Dropdown menu
-                DropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
+            TooltipWrapper(text = bgImageLabel) {
+                IconButton(
+                    onClick = if (backgroundImageLoaded) onClearBackgroundImage else onLoadBackgroundImage,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = bgImageLabel },
                 ) {
-                    TileType.entries.forEach { tileType ->
-                        DropdownMenuItem(
-                            text = {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                ) {
-                                    // Color indicator box
-                                    Box(
-                                        modifier =
-                                            Modifier
-                                                .size(16.dp)
-                                                .background(getTileColor(tileType), shape = MaterialTheme.shapes.small),
-                                    )
-                                    // Tile type name
-                                    Text(tileType.name)
-                                }
-                            },
-                            onClick = {
-                                onTileTypeChange(tileType)
-                                expanded = false
-                                // Show properties dialog if RIVER or TARGET is selected
-                                if (tileType == TileType.RIVER) {
-                                    showRiverPropertiesDialog = true
-                                } else if (tileType == TileType.TARGET) {
-                                    showTargetPropertiesDialog = true
-                                }
-                            },
-                        )
+                    if (backgroundImageLoaded) {
+                        de.egril.defender.ui.icon
+                            .CrossIcon(size = 16.dp, tint = MaterialTheme.colorScheme.primary)
+                    } else {
+                        de.egril.defender.ui.icon
+                            .DownloadIcon(size = 16.dp)
                     }
                 }
             }
 
-            // Show target properties button when TARGET is already selected
-            if (selectedTileType == TileType.TARGET) {
-                val editLabel = stringResource(Res.string.edit)
+            val mapPreviewLabel = stringResource(Res.string.map_preview)
+            TooltipWrapper(text = mapPreviewLabel) {
                 IconButton(
-                    onClick = { showTargetPropertiesDialog = true },
-                    modifier = Modifier.size(32.dp).semantics { contentDescription = editLabel },
+                    onClick = onOpenMapPreview,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = mapPreviewLabel },
                 ) {
                     de.egril.defender.ui.icon
-                        .PencilIcon(size = 16.dp)
+                        .MagnifyingGlassIcon(size = 16.dp)
                 }
             }
 
-            // Expand button - just icon, no text
             val expandLabel = stringResource(Res.string.expand)
-            IconButton(
-                onClick = onExpand,
-                modifier = Modifier.size(32.dp).semantics { contentDescription = expandLabel },
-            ) {
-                de.egril.defender.ui.icon
-                    .LeftArrowIcon(size = 16.dp)
+            TooltipWrapper(text = expandLabel) {
+                IconButton(
+                    onClick = onExpand,
+                    modifier = Modifier.size(32.dp).semantics { contentDescription = expandLabel },
+                ) {
+                    de.egril.defender.ui.icon
+                        .LeftArrowIcon(size = 16.dp)
+                }
             }
+            MapEditorToolToggles(
+                showCrosshair = showCrosshair,
+                onToggleCrosshair = onToggleCrosshair,
+            )
+            if (validationIssues.isNotEmpty()) {
+                val notReadyLabel = stringResource(Res.string.map_not_ready_indicator)
+                TooltipWrapper(text = notReadyLabel) {
+                    IconButton(
+                        onClick = { showNotReadyDialog = true },
+                        modifier = Modifier.size(32.dp).semantics { contentDescription = notReadyLabel },
+                    ) {
+                        RedCircleIcon(size = 16.dp)
+                    }
+                }
+            }
+        }
+        Row(
+            modifier =
+                Modifier
+                    .background(MaterialTheme.colorScheme.surface)
+                    .padding(horizontal = 8.dp, vertical = 4.dp)
+                    .fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MapEditorUndoRedoRow(
+                onUndo = onUndo,
+                canUndo = canUndo,
+                onRedo = onRedo,
+                canRedo = canRedo,
+            )
         }
     }
 
-    // River properties dialog
-    if (showRiverPropertiesDialog) {
+    // "Map not ready" details dialog, opened via the red dot indicator in the header.
+    if (showNotReadyDialog) {
         AlertDialog(
-            onDismissRequest = { showRiverPropertiesDialog = false },
-            title = { Text(stringResource(Res.string.river_properties)) },
+            onDismissRequest = { showNotReadyDialog = false },
+            title = { Text(stringResource(Res.string.map_not_ready_dialog_title)) },
             text = {
-                Column {
-                    Text(stringResource(Res.string.flow_direction), style = MaterialTheme.typography.bodyMedium)
-
-                    // Display flow directions in 2 rows (4 items per row)
-                    val flows = de.egril.defender.model.RiverFlow.entries
-                    val firstRowFlows = flows.take(4)
-                    val secondRowFlows = flows.drop(4)
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        // First row
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            firstRowFlows.forEach { flow ->
-                                Button(
-                                    onClick = { onRiverFlowChange(flow) },
-                                    colors =
-                                        ButtonDefaults.buttonColors(
-                                            containerColor =
-                                                if (selectedRiverFlow == flow) {
-                                                    MaterialTheme.colorScheme.primary
-                                                } else {
-                                                    MaterialTheme.colorScheme.secondary
-                                                },
-                                        ),
-                                    modifier = Modifier.height(32.dp).weight(1f),
-                                ) {
-                                    Text(flow.name.replace("_", " "), fontSize = 10.sp)
-                                }
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    validationIssues.forEach { issue ->
+                        val issueText =
+                            when (issue) {
+                                MapValidationIssue.INVALID_MAP_DATA -> stringResource(Res.string.map_validation_invalid_map_data)
+                                MapValidationIssue.UNSUPPORTED_SIZE -> stringResource(Res.string.map_validation_unsupported_size)
+                                MapValidationIssue.NO_SPAWN_POINT -> stringResource(Res.string.map_validation_no_spawn_point)
+                                MapValidationIssue.NO_TARGET -> stringResource(Res.string.map_validation_no_target)
+                                MapValidationIssue.NO_BUILDABLE_TILES -> stringResource(Res.string.map_validation_no_buildable_tiles)
+                                MapValidationIssue.NO_PATH_FROM_SPAWN_TO_TARGET ->
+                                    stringResource(Res.string.map_validation_no_path_from_spawn_to_target)
+                                MapValidationIssue.ROTATABLE_ZONE_TOO_SMALL ->
+                                    stringResource(Res.string.map_validation_rotatable_zone_too_small, MIN_ROTATABLE_REGION_TILES)
                             }
-                        }
-
-                        // Second row
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        ) {
-                            secondRowFlows.forEach { flow ->
-                                Button(
-                                    onClick = { onRiverFlowChange(flow) },
-                                    colors =
-                                        ButtonDefaults.buttonColors(
-                                            containerColor =
-                                                if (selectedRiverFlow == flow) {
-                                                    MaterialTheme.colorScheme.primary
-                                                } else {
-                                                    MaterialTheme.colorScheme.secondary
-                                                },
-                                        ),
-                                    modifier = Modifier.height(32.dp).weight(1f),
-                                ) {
-                                    Text(flow.name.replace("_", " "), fontSize = 10.sp)
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(stringResource(Res.string.flow_speed), style = MaterialTheme.typography.bodyMedium)
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Button(
-                            onClick = { onRiverSpeedChange(1) },
-                            colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor =
-                                        if (selectedRiverSpeed == 1) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.secondary
-                                        },
-                                ),
-                            modifier = Modifier.height(32.dp),
-                        ) {
-                            Text(stringResource(Res.string.speed_slow), fontSize = 10.sp)
-                        }
-                        Button(
-                            onClick = { onRiverSpeedChange(2) },
-                            colors =
-                                ButtonDefaults.buttonColors(
-                                    containerColor =
-                                        if (selectedRiverSpeed == 2) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.secondary
-                                        },
-                                ),
-                            modifier = Modifier.height(32.dp),
-                        ) {
-                            Text(stringResource(Res.string.speed_fast), fontSize = 10.sp)
+                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("•")
+                            Text(issueText)
                         }
                     }
                 }
             },
             confirmButton = {
-                Button(onClick = { showRiverPropertiesDialog = false }) {
+                Button(onClick = { showNotReadyDialog = false }) {
                     Text(stringResource(Res.string.ok))
                 }
             },
         )
     }
+}
 
-    // Target properties dialog
-    if (showTargetPropertiesDialog) {
-        var localName by remember(showTargetPropertiesDialog) { mutableStateOf(selectedTargetName) }
-        AlertDialog(
-            onDismissRequest = { showTargetPropertiesDialog = false },
-            title = { Text(stringResource(Res.string.target_name_label)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(
-                        value = localName,
-                        onValueChange = { localName = it },
-                        label = { Text(stringResource(Res.string.target_name_label)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                    )
-                    Text(stringResource(Res.string.target_type_label), style = MaterialTheme.typography.bodyMedium)
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        de.egril.defender.model.TargetType.entries.forEach { type ->
-                            val label =
-                                when (type) {
-                                    de.egril.defender.model.TargetType.STANDARD -> stringResource(Res.string.target_type_standard)
-                                    de.egril.defender.model.TargetType.SINGLE_HIT -> stringResource(Res.string.target_type_single_hit)
-                                }
-                            Button(
-                                onClick = { onTargetTypeChange(type) },
-                                colors =
-                                    ButtonDefaults.buttonColors(
-                                        containerColor =
-                                            if (selectedTargetType == type) {
-                                                MaterialTheme.colorScheme.primary
-                                            } else {
-                                                MaterialTheme.colorScheme.secondary
-                                            },
-                                    ),
-                                modifier = Modifier.height(36.dp),
-                            ) {
-                                Text(label, fontSize = 11.sp)
-                            }
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                Button(onClick = {
-                    onTargetNameChange(localName)
-                    showTargetPropertiesDialog = false
-                }) {
-                    Text(stringResource(Res.string.ok))
-                }
-            },
-            dismissButton = {
-                Button(onClick = { showTargetPropertiesDialog = false }) {
-                    Text(stringResource(Res.string.cancel))
-                }
-            },
+/**
+ * Overlay toggles, undo/redo and the area clipboard. Used by the collapsed header, and by the
+ * side panel while the header is expanded, so each control is shown exactly once.
+ */
+@Composable
+internal fun MapEditorToolToggles(
+    showCrosshair: Boolean,
+    onToggleCrosshair: () -> Unit,
+) {
+    val mapCrosshairLabel = stringResource(Res.string.map_crosshair)
+    TooltipWrapper(text = mapCrosshairLabel) {
+        IconButton(
+            onClick = onToggleCrosshair,
+            modifier = Modifier.semantics { contentDescription = mapCrosshairLabel },
+            colors =
+                IconButtonDefaults.iconButtonColors(
+                    contentColor =
+                        if (showCrosshair) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                ),
+        ) {
+            CrosshairIcon(contentDescription = mapCrosshairLabel, size = 20.dp)
+        }
+    }
+}
+
+@Composable
+internal fun MapEditorUndoRedoRow(
+    onUndo: () -> Unit,
+    canUndo: Boolean,
+    onRedo: () -> Unit,
+    canRedo: Boolean,
+) {
+    val undoLabel = stringResource(Res.string.undo)
+    TooltipWrapper(text = undoLabel) {
+        AssistChip(
+            onClick = onUndo,
+            enabled = canUndo,
+            label = { Text(undoLabel, fontSize = 11.sp) },
         )
+    }
+    val redoLabel = stringResource(Res.string.redo)
+    TooltipWrapper(text = redoLabel) {
+        AssistChip(
+            onClick = onRedo,
+            enabled = canRedo,
+            label = { Text(redoLabel, fontSize = 11.sp) },
+        )
+    }
+}
+
+@Composable
+private fun CompactToggleChip(
+    label: String,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
+    AssistChip(
+        onClick = onClick,
+        label = { Text(label, fontSize = 11.sp) },
+        colors =
+            AssistChipDefaults.assistChipColors(
+                containerColor =
+                    if (active) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                labelColor =
+                    if (active) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            ),
+    )
+}
+
+@Composable
+internal fun OverlayToggleButton(
+    label: String,
+    isActive: Boolean,
+    onClick: () -> Unit,
+    icon: (@Composable () -> Unit)? = null,
+) {
+    Button(
+        onClick = onClick,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor =
+                    if (isActive) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surfaceVariant
+                    },
+                contentColor =
+                    if (isActive) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+            ),
+    ) {
+        if (icon != null) {
+            icon()
+        } else {
+            Text(label)
+        }
     }
 }
 

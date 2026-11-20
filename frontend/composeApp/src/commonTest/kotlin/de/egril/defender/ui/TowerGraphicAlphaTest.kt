@@ -13,6 +13,14 @@ import kotlin.test.assertEquals
  * active towers (fully opaque) from inactive ones (reduced opacity).
  */
 class TowerGraphicAlphaTest {
+    @Test
+    fun channelingAltarRemainsFullyOpaqueWithoutActions() {
+        val altar = tower(DefenderType.ALTAR)
+        altar.actionsRemaining.value = 0
+        altar.isChanneling.value = true
+        assertEquals(1f, towerGraphicAlpha(altar))
+    }
+
     private fun tower(
         type: DefenderType,
         level: Int = 1,

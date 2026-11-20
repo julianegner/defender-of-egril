@@ -1,6 +1,7 @@
 package de.egril.defender.game
 
 import androidx.compose.runtime.mutableStateOf
+import de.egril.defender.model.AltarLink
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.Defender
@@ -9,6 +10,9 @@ import de.egril.defender.model.EventAction
 import de.egril.defender.model.EventActionType
 import de.egril.defender.model.EventCondition
 import de.egril.defender.model.EventConditionType
+import de.egril.defender.model.EventLoop
+import de.egril.defender.model.EventLoopStep
+import de.egril.defender.model.EventMapImage
 import de.egril.defender.model.GameMessageType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
@@ -30,6 +34,460 @@ import kotlin.test.assertTrue
  * Tests for [EventScriptSystem]: scripted level events (conditions, actions, story messages).
  */
 class EventScriptSystemTest {
+    @Test
+    fun altarThresholdCountsOnlySimultaneouslyChannelingReadyEnabledAltars() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "altars",
+                                condition = EventCondition(EventConditionType.ALTARS_ACTIVATED, threshold = 2),
+                                actions = listOf(EventAction(EventActionType.GIVE_COINS, amount = 25)),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val first = Defender(id = 1, type = DefenderType.ALTAR, position = mutableStateOf(Position(2, 2)))
+        val second = Defender(id = 2, type = DefenderType.ALTAR, position = mutableStateOf(Position(3, 2)))
+        val inactive = Defender(id = 3, type = DefenderType.ALTAR, position = mutableStateOf(Position(4, 2)))
+        val building = Defender(id = 4, type = DefenderType.ALTAR, position = mutableStateOf(Position(5, 2)))
+        val disabled = Defender(id = 5, type = DefenderType.ALTAR, position = mutableStateOf(Position(6, 2)))
+        val otherTower = Defender(id = 6, type = DefenderType.SPIKE_TOWER, position = mutableStateOf(Position(7, 2)))
+        state.defenders.addAll(listOf(first, second, inactive, building, disabled, otherTower))
+        first.isChanneling.value = true
+        building.isChanneling.value = true
+        building.buildTimeRemaining.value = 1
+        disabled.isChanneling.value = true
+        disabled.isDisabled.value = true
+        otherTower.isChanneling.value = true
+        val system = EventScriptSystem(state)
+        val coins = state.coins.value
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(coins, state.coins.value)
+
+        // Activations on different turns do not accumulate.
+        first.isChanneling.value = false
+        second.isChanneling.value = true
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(coins, state.coins.value)
+
+        first.isChanneling.value = true
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(coins + 25, state.coins.value)
+        assertTrue("altars" in state.triggeredEventIds)
+        system.evaluate(EventTrigger.ENEMY_TURN_START)
+        assertEquals(coins + 25, state.coins.value)
+    }
+
+    @Test
+    fun altarVictoryFiresImmediatelyButRespectsFromTurn() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "victory",
+                                condition = EventCondition(EventConditionType.ALTARS_ACTIVATED, fromTurn = 3, threshold = 1),
+                                actions = listOf(EventAction(EventActionType.WIN_LEVEL)),
+                                messageKey = "event_msg_rune_network_taken_over",
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val altar = Defender(id = 1, type = DefenderType.ALTAR, position = mutableStateOf(Position(2, 2)))
+        altar.isChanneling.value = true
+        state.defenders.add(altar)
+        state.attackers.add(Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(Position(0, 0))))
+        val system = EventScriptSystem(state)
+        state.turnNumber.value = 2
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertFalse(state.scriptedVictory.value)
+        assertFalse(state.isLevelWon())
+        assertTrue(state.pendingMessages.isEmpty())
+        state.turnNumber.value = 3
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertTrue(state.scriptedVictory.value)
+        assertTrue(state.isLevelWon())
+        assertEquals("event_msg_rune_network_taken_over", state.pendingMessages.single().name)
+        altar.isChanneling.value = false
+        assertEquals(1, state.pendingMessages.single().eventMessageAmount)
+        system.evaluate(EventTrigger.IMMEDIATE)
+        assertEquals(1, state.pendingMessages.size)
+    }
+
+    @Test
+    fun winLevelActionWorksSilentlyFromLoopSteps() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "victory-loop",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                loop =
+                                    EventLoop(
+                                        repeatCount = 1,
+                                        steps =
+                                            listOf(
+                                                EventLoopStep(
+                                                    waitTurns = 1,
+                                                    actions = listOf(EventAction(EventActionType.WIN_LEVEL)),
+                                                ),
+                                            ),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        state.attackers.add(Attacker(id = 1, type = AttackerType.GOBLIN, position = mutableStateOf(Position(0, 0))))
+        val system = EventScriptSystem(state)
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertFalse(state.isLevelWon())
+        state.turnNumber.value++
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.scriptedVictory.value)
+        assertTrue(state.isLevelWon())
+        assertTrue(state.pendingMessages.isEmpty())
+    }
+
+    @Test
+    fun runeNetworkLoopMessageCapturesActivatedCountBeforeLaterReset() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "rune-message-loop",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                loop =
+                                    EventLoop(
+                                        repeatCount = 1,
+                                        steps =
+                                            listOf(
+                                                EventLoopStep(
+                                                    waitTurns = 0,
+                                                    messageKey = "event_msg_rune_network_taken_over",
+                                                ),
+                                                EventLoopStep(waitTurns = 1),
+                                            ),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val altar =
+            Defender(
+                id = 1,
+                type = DefenderType.ALTAR,
+                position = mutableStateOf(Position(2, 2)),
+                isChanneling = mutableStateOf(true),
+            )
+        state.defenders.add(altar)
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        altar.isChanneling.value = false
+        assertEquals(1, state.pendingMessages.single().eventMessageAmount)
+    }
+
+    @Test
+    fun mapImagesAppearOnlyWhenTriggeredAndRemainUntilHidden() {
+        val image = EventMapImage("kraken", "kraken.png", 2.5f, 3f, 4f, 2f)
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "show",
+                                condition = EventCondition(EventConditionType.TURN_START, fromTurn = 2),
+                                actions = listOf(EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = image)),
+                            ),
+                            LevelEvent(
+                                id = "hide",
+                                condition = EventCondition(EventConditionType.TURN_START, fromTurn = 4),
+                                actions = listOf(EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = image.id)),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val system = EventScriptSystem(state)
+        state.turnNumber.value = 1
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeEventMapImages.isEmpty())
+        state.turnNumber.value = 2
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(image), state.activeEventMapImages.toList())
+        state.turnNumber.value = 3
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(image), state.activeEventMapImages.toList())
+        state.turnNumber.value = 4
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeEventMapImages.isEmpty())
+    }
+
+    @Test
+    fun showingSameImageIdReplacesGeometryAndHideLeavesOtherImagesVisible() {
+        val first = EventMapImage("first", "first.png")
+        val second = EventMapImage("second", "second.png")
+        val replaced = first.copy(x = -1.5f, width = 3.5f)
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "images",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                actions =
+                                    listOf(
+                                        EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = first),
+                                        EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = second),
+                                        EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = replaced),
+                                        EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = "second"),
+                                        EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = "absent"),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(replaced), state.activeEventMapImages.toList())
+    }
+
+    @Test
+    fun invalidMapImagesAreNotActivated() {
+        val invalid =
+            listOf(
+                EventMapImage("", "test.png"),
+                EventMapImage("test", "../test.png"),
+                EventMapImage("test", "test.png", width = 0f),
+                EventMapImage("test", "test.png", height = -1f),
+                EventMapImage("test", "test.png", x = Float.NaN),
+                EventMapImage("test", "test.png", width = Float.POSITIVE_INFINITY),
+            )
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "invalid",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                actions = invalid.map { EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = it) },
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeEventMapImages.isEmpty())
+    }
+
+    @Test
+    fun eventLoopCanShowAndHideMapImages() {
+        val image = EventMapImage("loop_image", "image.png")
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "loop",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                loop =
+                                    EventLoop(
+                                        repeatCount = 1,
+                                        steps =
+                                            listOf(
+                                                EventLoopStep(waitTurns = 0, actions = listOf(EventAction(EventActionType.SHOW_MAP_IMAGE, mapImage = image))),
+                                                EventLoopStep(waitTurns = 1, actions = listOf(EventAction(EventActionType.HIDE_MAP_IMAGE, imageId = image.id))),
+                                            ),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val system = EventScriptSystem(state)
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(image), state.activeEventMapImages.toList())
+        state.turnNumber.value++
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeEventMapImages.isEmpty())
+    }
+
+    @Test
+    fun altarLinkConnectsDesignatedAltarsOnlyWhenBothAreActivated() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "show",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                repeatable = true,
+                                actions =
+                                    listOf(
+                                        EventAction(
+                                            EventActionType.SHOW_ALTAR_LINK,
+                                            linkId = "ab",
+                                            altarFrom = Position(2, 2),
+                                            altarTo = Position(3, 2),
+                                        ),
+                                    ),
+                            ),
+                            LevelEvent(
+                                id = "hide",
+                                condition = EventCondition(EventConditionType.TURN_START, fromTurn = 3),
+                                actions = listOf(EventAction(EventActionType.HIDE_ALTAR_LINK, linkId = "ab")),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        val first = Defender(id = 1, type = DefenderType.ALTAR, position = mutableStateOf(Position(2, 2)))
+        val second = Defender(id = 2, type = DefenderType.ALTAR, position = mutableStateOf(Position(3, 2)))
+        val other = Defender(id = 3, type = DefenderType.ALTAR, position = mutableStateOf(Position(5, 5)))
+        state.defenders.addAll(listOf(first, second, other))
+        val system = EventScriptSystem(state)
+
+        // Only the designated first altar is active: no line.
+        first.isChanneling.value = true
+        state.turnNumber.value = 1
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+
+        // An unrelated altar does not complete the designated pair.
+        other.isChanneling.value = true
+        state.turnNumber.value = 1
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+
+        second.isChanneling.value = true
+        state.turnNumber.value = 2
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(listOf(AltarLink("ab", Position(2, 2), Position(3, 2))), state.activeAltarLinks.toList())
+
+        // Showing the same id again replaces the existing line instead of adding a second one.
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(1, state.activeAltarLinks.size)
+
+        state.turnNumber.value = 3
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+    }
+
+    @Test
+    fun altarLinkInvalidWithoutTwoDistinctTiles() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "show",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                actions =
+                                    listOf(
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "same", altarFrom = Position(2, 2), altarTo = Position(2, 2)),
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "missing", altarFrom = Position(2, 2)),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        state.defenders.add(Defender(id = 1, type = DefenderType.ALTAR, position = mutableStateOf(Position(2, 2))).also { it.isChanneling.value = true })
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+    }
+
+    @Test
+    fun sameLinkIdWithDifferentPairsShowsSeveralLinesAtOnce() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "links",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                repeatable = true,
+                                actions =
+                                    listOf(
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "altar_link", altarFrom = Position(2, 2), altarTo = Position(3, 2)),
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "altar_link", altarFrom = Position(3, 2), altarTo = Position(2, 4)),
+                                    ),
+                            ),
+                            LevelEvent(
+                                id = "hide",
+                                condition = EventCondition(EventConditionType.TURN_START, fromTurn = 2),
+                                actions = listOf(EventAction(EventActionType.HIDE_ALTAR_LINK, linkId = "altar_link")),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        listOf(Position(2, 2), Position(3, 2), Position(2, 4)).forEachIndexed { i, pos ->
+            state.defenders.add(Defender(id = i + 1, type = DefenderType.ALTAR, position = mutableStateOf(pos)).also { it.isChanneling.value = true })
+        }
+        val system = EventScriptSystem(state)
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(2, state.activeAltarLinks.size)
+
+        // Showing the same pair again (in either order) does not add a duplicate line.
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(2, state.activeAltarLinks.size)
+
+        state.turnNumber.value = 2
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.activeAltarLinks.isEmpty())
+    }
+
+    @Test
+    fun oneAltarCanBeLinkedToSeveralAltars() {
+        val state =
+            GameState(
+                createLevel(
+                    LevelEvents(
+                        listOf(
+                            LevelEvent(
+                                id = "links",
+                                condition = EventCondition(EventConditionType.TURN_START),
+                                actions =
+                                    listOf(
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "ab", altarFrom = Position(2, 2), altarTo = Position(3, 2)),
+                                        EventAction(EventActionType.SHOW_ALTAR_LINK, linkId = "ac", altarFrom = Position(2, 2), altarTo = Position(2, 4)),
+                                    ),
+                            ),
+                        ),
+                    ),
+                ),
+            )
+        listOf(Position(2, 2), Position(3, 2), Position(2, 4)).forEachIndexed { i, pos ->
+            state.defenders.add(Defender(id = i + 1, type = DefenderType.ALTAR, position = mutableStateOf(pos)).also { it.isChanneling.value = true })
+        }
+        EventScriptSystem(state).evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(
+            listOf(
+                AltarLink("ab", Position(2, 2), Position(3, 2)),
+                AltarLink("ac", Position(2, 2), Position(2, 4)),
+            ),
+            state.activeAltarLinks.toList(),
+        )
+    }
+
     private fun createLevel(events: LevelEvents): Level =
         Level(
             id = 1,
@@ -371,7 +829,7 @@ class EventScriptSystemTest {
     }
 
     @Test
-    fun testMessageIsQueuedEvenWithoutMessageKey() {
+    fun testNoMessageIsQueuedWithoutMessageKey() {
         val event =
             LevelEvent(
                 id = "no_msg",
@@ -384,11 +842,88 @@ class EventScriptSystemTest {
         val system = EventScriptSystem(state)
 
         system.evaluate(EventTrigger.PLAYER_TURN_START)
-        assertEquals(1, state.pendingMessages.size, "A message should be queued even without a message key")
+        assertTrue(state.pendingMessages.isEmpty(), "'No message' events must not show a popup")
+        assertEquals(150, state.coins.value, "The actions are still applied")
+    }
+
+    @Test
+    fun testMessageFrameIsCarriedOnMessage() {
+        val event =
+            LevelEvent(
+                id = "framed",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = "event_msg_high_tide",
+                messageFrame = "kraken",
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals("kraken", state.pendingMessages.first().eventMessageFrame)
+    }
+
+    @Test
+    fun testLoopStepWithoutMessageKeyShowsNoPopup() {
+        val event =
+            LevelEvent(
+                id = "loop_no_msg",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = null,
+                loop =
+                    EventLoop(
+                        repeatCount = 1,
+                        steps =
+                            listOf(
+                                EventLoopStep(
+                                    waitTurns = 0,
+                                    actions = listOf(EventAction(type = EventActionType.GIVE_COINS, amount = 10)),
+                                    messageKey = null,
+                                ),
+                                // A loop needs at least one waiting step per pass to be valid.
+                                EventLoopStep(waitTurns = 3),
+                            ),
+                    ),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertTrue(state.pendingMessages.isEmpty(), "Silent loop steps must not show a popup")
+        assertEquals(110, state.coins.value, "The loop step actions are still applied")
+    }
+
+    @Test
+    fun testLoopStepMessageUsesItsFrame() {
+        val event =
+            LevelEvent(
+                id = "loop_msg",
+                condition = EventCondition(type = EventConditionType.TURN_START),
+                messageKey = null,
+                loop =
+                    EventLoop(
+                        repeatCount = 1,
+                        steps =
+                            listOf(
+                                EventLoopStep(
+                                    waitTurns = 0,
+                                    messageKey = "event_msg_low_tide",
+                                    messageFrame = "sylvanas",
+                                ),
+                                EventLoopStep(waitTurns = 3),
+                            ),
+                    ),
+            )
+        val state = GameState(createLevel(LevelEvents(listOf(event))))
+        state.turnNumber.value = 1
+        val system = EventScriptSystem(state)
+
+        system.evaluate(EventTrigger.PLAYER_TURN_START)
+        assertEquals(1, state.pendingMessages.size)
         val message = state.pendingMessages.first()
-        assertEquals(GameMessageType.EVENT_MESSAGE, message.type)
-        assertEquals(null, message.name)
-        assertEquals(event.actions, message.eventActions, "The applied actions are carried on the message")
+        assertEquals("event_msg_low_tide", message.name)
+        assertEquals("sylvanas", message.eventMessageFrame)
     }
 
     @Test

@@ -13,6 +13,7 @@ import de.egril.defender.model.GameState
 import de.egril.defender.ui.ScreenshotTestUtils
 import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.HeaderTextSize
+import de.egril.defender.ui.settings.saveHeaderTextSize
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule

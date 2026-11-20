@@ -29,6 +29,28 @@ import de.egril.defender.ui.settings.AppSettings
 import de.egril.defender.ui.settings.buildShortcutBindingFromEvent
 import de.egril.defender.ui.settings.formatShortcutBindingForDisplay
 import de.egril.defender.ui.settings.isShortcutBindingChanged
+import de.egril.defender.ui.settings.resetShortcutBindings
+import de.egril.defender.ui.settings.saveShortcutAttackSelectedTarget
+import de.egril.defender.ui.settings.saveShortcutAutoAttackEndTurn
+import de.egril.defender.ui.settings.saveShortcutBackToWorldMap
+import de.egril.defender.ui.settings.saveShortcutCenterNextSpawnPoint
+import de.egril.defender.ui.settings.saveShortcutCenterSelectedTower
+import de.egril.defender.ui.settings.saveShortcutCheat
+import de.egril.defender.ui.settings.saveShortcutEndTurnStartBattle
+import de.egril.defender.ui.settings.saveShortcutNextEnemyTarget
+import de.egril.defender.ui.settings.saveShortcutPanDown
+import de.egril.defender.ui.settings.saveShortcutPanLeft
+import de.egril.defender.ui.settings.saveShortcutPanRight
+import de.egril.defender.ui.settings.saveShortcutPanUp
+import de.egril.defender.ui.settings.saveShortcutPrevEnemyTarget
+import de.egril.defender.ui.settings.saveShortcutSaveGame
+import de.egril.defender.ui.settings.saveShortcutSelectNextTower
+import de.egril.defender.ui.settings.saveShortcutSelectPreviousTower
+import de.egril.defender.ui.settings.saveShortcutSwitchToTowerMode
+import de.egril.defender.ui.settings.saveShortcutToggleEnemyList
+import de.egril.defender.ui.settings.saveShortcutToggleSpellMenu
+import de.egril.defender.ui.settings.saveShortcutUndoOrSellSelectedTower
+import de.egril.defender.ui.settings.saveShortcutUpgradeSelectedTower
 import defender_of_egril.composeapp.generated.resources.*
 
 private val SHORTCUT_KEY_COLUMN_MIN_WIDTH = 140.dp

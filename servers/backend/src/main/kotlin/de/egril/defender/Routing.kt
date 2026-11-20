@@ -766,21 +766,14 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                     // no user-supplied image data is ever stored or served.
                     if (request.fileType == "MAP") {
                         try {
-                            val mapData = parseBackendMapData(request.data)
-                            if (mapData != null) {
-                                val (pixels, w, h) = BackendMapImageGenerator.generatePixels(mapData)
-                                val png = BackendMapImageGenerator.encodeToPng(pixels, w, h)
-                                if (png != null) {
-                                    conn
-                                        .prepareStatement(
-                                            "UPDATE community_files SET map_image = ? WHERE file_type = 'MAP' AND file_id = ?",
-                                        ).use { stmt ->
-                                            stmt.setBytes(1, png)
-                                            stmt.setString(2, request.fileId)
-                                            stmt.executeUpdate()
-                                        }
-                                    communityLogger.info("Map image generated for MAP ${request.fileId} (${w}x$h)")
-                                }
+                            val source = parseCommunityMapImageSource(request.data)
+                            if (source != null) {
+                                val images = renderCommunityMapImages(source)
+                                storeCommunityMapImages(conn, request.fileId, images)
+                                communityLogger.info(
+                                    "Map images generated for MAP ${request.fileId} " +
+                                        "(${source.base.width}x${source.base.height}, ${images.zones.size} zones)",
+                                )
                             }
                         } catch (imgEx: Exception) {
                             // Image generation failure is non-fatal – the map data was already stored
@@ -1001,6 +994,56 @@ fun Application.configureRouting(dataSourceRef: AtomicReference<DataSource?>) {
                 } catch (e: Exception) {
                     communityLogger.error("Failed to retrieve map image for $mapId: ${e.message}", e)
                     call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve map image")
+                }
+            }
+        }
+
+        /**
+         * Download the server-generated PNG overlay for one tile zone of a community map.
+         * [zoneIndex] is the zero-based position of the zone in the map's tileZones list.
+         * This endpoint is public (no authentication required). Returns 404 if the map has no
+         * zone image at that index (for example maps uploaded before zone images existed).
+         */
+        get("/api/community/files/MAP/{mapId}/zones/{zoneIndex}/image") {
+            val mapId = call.parameters["mapId"]
+            if (mapId == null) {
+                call.respond(HttpStatusCode.BadRequest, "Missing mapId")
+                return@get
+            }
+            val zoneIndex = call.parameters["zoneIndex"]?.toIntOrNull()
+            if (zoneIndex == null || zoneIndex < 0) {
+                call.respond(HttpStatusCode.BadRequest, "Invalid zoneIndex")
+                return@get
+            }
+
+            val ds =
+                dataSourceRef.get() ?: run {
+                    call.respond(HttpStatusCode.ServiceUnavailable, "Database not available")
+                    return@get
+                }
+            ds.connection.use { conn ->
+                try {
+                    var imageBytes: ByteArray? = null
+                    conn
+                        .prepareStatement(
+                            "SELECT z.image FROM community_map_zone_images z " +
+                                "JOIN community_files f ON f.id = z.community_file_id " +
+                                "WHERE f.file_type = 'MAP' AND f.file_id = ? AND z.zone_index = ?",
+                        ).use { stmt ->
+                            stmt.setString(1, mapId)
+                            stmt.setInt(2, zoneIndex)
+                            stmt.executeQuery().use { rs ->
+                                if (rs.next()) imageBytes = rs.getBytes("image")
+                            }
+                        }
+                    if (imageBytes == null) {
+                        call.respond(HttpStatusCode.NotFound, "Zone image not found")
+                    } else {
+                        call.respondBytes(imageBytes!!, ContentType.Image.PNG)
+                    }
+                } catch (e: Exception) {
+                    communityLogger.error("Failed to retrieve zone image $zoneIndex for $mapId: ${e.message}", e)
+                    call.respond(HttpStatusCode.InternalServerError, "Failed to retrieve zone image")
                 }
             }
         }

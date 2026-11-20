@@ -17,7 +17,6 @@ import androidx.compose.ui.window.Dialog
 import com.hyperether.resources.stringResource
 import de.egril.defender.model.Achievement
 import de.egril.defender.ui.icon.TrophyIcon
-import de.egril.defender.ui.isMobileWebBrowser
 import de.egril.defender.utils.isPlatformMobile
 import defender_of_egril.composeapp.generated.resources.Res
 import defender_of_egril.composeapp.generated.resources.achievement_unlocked

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.hyperether.resources.stringResource
 import de.egril.defender.model.AttackerType
 import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.getLocalizedSubtitle
@@ -27,6 +28,10 @@ import de.egril.defender.ui.getLocalizedTitle
 import de.egril.defender.ui.icon.HeartIcon
 import de.egril.defender.ui.icon.MoneyIcon
 import de.egril.defender.ui.icon.enemy.EnemyTypeIcon
+import defender_of_egril.composeapp.generated.resources.Res
+import defender_of_egril.composeapp.generated.resources.level_info_endless_loop
+import defender_of_egril.composeapp.generated.resources.villain
+import defender_of_egril.composeapp.generated.resources.villains
 import kotlin.collections.component1
 import kotlin.collections.component2
 
@@ -39,6 +44,8 @@ data class LevelInfoEnemiesLevelData(
     val initialCoins: Int,
     val healthPoints: Int,
     val enemyTypeCounts: Map<AttackerType, Int>,
+    // True if a spawn loop has no fixed iteration count; the counts then cover a single iteration.
+    val endlessLoop: Boolean = false,
 )
 
 @Composable
@@ -47,6 +54,8 @@ fun RowScope.LevelInfoEnemiesColumn(
     textColor: Color,
 ) {
     val enemyList = level.enemyTypeCounts.entries.toList()
+    val normalEnemyList = enemyList.filter { !it.key.isVillain }
+    val villainList = enemyList.filter { it.key.isVillain }
 
     // Left column: Level info, coins, health, and enemies
     Column(
@@ -120,14 +129,14 @@ fun RowScope.LevelInfoEnemiesColumn(
         Spacer(modifier = Modifier.height(8.dp))
         Row {
             // Enemy units display
-            if (enemyList.isNotEmpty()) {
+            if (normalEnemyList.isNotEmpty()) {
                 Column(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    enemyList.forEachIndexed { index, (attackerType, count) ->
+                    normalEnemyList.forEachIndexed { index, (attackerType, count) ->
                         if (index % 2 == 0) {
-                            EnemyUnitEntry(attackerType, count, textColor)
+                            EnemyUnitEntry(attackerType, count, textColor, endless = level.endlessLoop)
                         }
                     }
                 }
@@ -135,13 +144,50 @@ fun RowScope.LevelInfoEnemiesColumn(
                     modifier = Modifier.weight(1f),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    enemyList.forEachIndexed { index, (attackerType, count) ->
+                    normalEnemyList.forEachIndexed { index, (attackerType, count) ->
                         if (index % 2 == 1) {
-                            EnemyUnitEntry(attackerType, count, textColor)
+                            EnemyUnitEntry(attackerType, count, textColor, endless = level.endlessLoop)
                         }
                     }
                 }
             }
+        }
+
+        // Villains display: shown under a dedicated title, distinct from normal enemies
+        if (villainList.isNotEmpty()) {
+            val villainCount = villainList.sumOf { it.value }
+            val villainTitle =
+                if (villainCount > 1) {
+                    stringResource(Res.string.villains)
+                } else {
+                    stringResource(Res.string.villain)
+                }
+
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = villainTitle,
+                style = MaterialTheme.typography.labelSmall,
+                color = textColor,
+                fontSize = 12.sp,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                villainList.forEach { (attackerType, count) ->
+                    EnemyUnitEntry(attackerType, count, textColor, showCount = false)
+                }
+            }
+        }
+
+        if (level.endlessLoop && enemyList.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "* ${stringResource(Res.string.level_info_endless_loop)}",
+                style = MaterialTheme.typography.bodySmall,
+                color = textColor,
+                fontSize = 11.sp,
+            )
         }
     }
 }
@@ -151,6 +197,8 @@ private fun EnemyUnitEntry(
     attackerType: AttackerType,
     count: Int,
     textColor: Color,
+    showCount: Boolean = true,
+    endless: Boolean = false,
 ) {
     val locale = com.hyperether.resources.currentLanguage.value
     Row(
@@ -166,7 +214,12 @@ private fun EnemyUnitEntry(
         Spacer(modifier = Modifier.width(4.dp))
 
         Text(
-            text = "${attackerType.getLocalizedName(locale)}: $count",
+            text =
+                if (showCount) {
+                    "${attackerType.getLocalizedName(locale)}: $count${if (endless) "*" else ""}"
+                } else {
+                    attackerType.getLocalizedName(locale)
+                },
             style = MaterialTheme.typography.bodySmall,
             color = textColor,
             fontSize = 11.sp,

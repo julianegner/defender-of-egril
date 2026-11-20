@@ -4,6 +4,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,12 +15,20 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import de.egril.defender.editor.EditorMap
 import de.egril.defender.editor.InitialData
 import de.egril.defender.editor.TileType
+import de.egril.defender.model.AttackerType
+import de.egril.defender.model.BridgeType
+import de.egril.defender.model.DefenderType
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.Position
+import de.egril.defender.model.RiverFlow
+import de.egril.defender.model.SpawnPointType
+import de.egril.defender.model.getHexNeighbors
 import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.PI
 import kotlin.math.cos
@@ -36,6 +45,11 @@ enum class PlacementMode {
     ATTACKER, // Enemies: PATH or SPAWN_POINT
     TRAP, // Traps: PATH
     BARRICADE, // Barricades: PATH
+    BRIDGE, // Bridges: RIVER
+    FIEF, // Fiefs: PATH
+    MUSHROOM, // Mushrooms: PATH
+    GARGOYLE, // Gargoyles: PATH or BUILD_AREA
+    PORTAL, // Portals: any PATH/SPAWN_POINT/TARGET tile
 }
 
 /**
@@ -45,20 +59,104 @@ fun isValidPlacement(
     position: Position,
     mode: PlacementMode,
     map: EditorMap,
+    selectedDefenderType: DefenderType? = null,
+    selectedAttackerType: AttackerType? = null,
 ): Boolean {
     val tileType = map.getTileType(position.x, position.y)
     return when (mode) {
-        PlacementMode.DEFENDER -> tileType == TileType.BUILD_AREA
-        PlacementMode.ATTACKER -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
+        PlacementMode.DEFENDER -> {
+            val isBuildArea = tileType == TileType.BUILD_AREA
+            val isFlowingWaterTile = isFlowingWaterTile(position, map)
+            if (selectedDefenderType == DefenderType.DWARVEN_MINE) {
+                isBuildArea
+            } else {
+                isBuildArea || isFlowingWaterTile
+            }
+        }
+        PlacementMode.ATTACKER -> {
+            val isRegularEnemyTile = tileType == TileType.PATH || tileType == TileType.SPAWN_POINT
+            val attackerType = selectedAttackerType ?: return isRegularEnemyTile
+            val canUseWater =
+                attackerType.canTraverseRiver ||
+                    attackerType.canOnlyMoveOnWater ||
+                    attackerType.canSpawnOnWater
+            if (canUseWater) {
+                isRegularEnemyTile || isWaterTile(position, map)
+            } else {
+                isRegularEnemyTile
+            }
+        }
         PlacementMode.TRAP -> tileType == TileType.PATH
         PlacementMode.BARRICADE -> tileType == TileType.PATH
+        PlacementMode.BRIDGE -> tileType == TileType.RIVER || map.getRiverTile(position.x, position.y) != null
+        PlacementMode.FIEF -> tileType == TileType.PATH
+        PlacementMode.MUSHROOM -> tileType == TileType.PATH
+        PlacementMode.GARGOYLE -> tileType == TileType.PATH || tileType == TileType.BUILD_AREA
+        PlacementMode.PORTAL -> tileType == TileType.PATH || tileType == TileType.SPAWN_POINT || tileType == TileType.TARGET
     }
 }
 
 /**
+ * Terrain rule for placing a fief of [fiefType] in the editor. Fisher boats float on river tiles
+ * (not water spawn points); fishers need a path tile next to water; all other fiefs need a path tile.
+ */
+fun isValidFiefPlacement(
+    position: Position,
+    fiefType: FiefType,
+    map: EditorMap,
+): Boolean {
+    val tileType = map.getTileType(position.x, position.y)
+    return when (fiefType) {
+        FiefType.FISHER_BOAT -> isBoatWaterTile(position, map) && tileType != TileType.SPAWN_POINT
+        FiefType.FISHER -> tileType == TileType.PATH && hasAdjacentWaterTile(position, map)
+        else -> tileType == TileType.PATH
+    }
+}
+
+/** Maelstrom tiles swallow boats, so they are not valid boat positions. */
+fun isBoatWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean =
+    isWaterTile(position, map) &&
+        map.getRiverTile(position.x, position.y)?.flowDirection != RiverFlow.MAELSTROM
+
+internal fun isWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean {
+    val tileType = map.getTileType(position.x, position.y)
+    val isWaterSpawn = tileType == TileType.SPAWN_POINT && map.getSpawnPointType(position) == SpawnPointType.WATER
+    return tileType == TileType.RIVER || map.getRiverTile(position.x, position.y) != null || isWaterSpawn
+}
+
+private fun isFlowingWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean {
+    val riverTile = map.getRiverTile(position.x, position.y) ?: return false
+    return riverTile.flowDirection != RiverFlow.NONE && riverTile.flowDirection != RiverFlow.MAELSTROM
+}
+
+private fun hasAdjacentWaterTile(
+    position: Position,
+    map: EditorMap,
+): Boolean =
+    position
+        .getHexNeighbors()
+        .any { neighbor ->
+            if (neighbor.x !in 0 until map.width || neighbor.y !in 0 until map.height) {
+                return@any false
+            }
+            val neighborTileType = map.getTileType(neighbor.x, neighbor.y)
+            neighborTileType == TileType.RIVER ||
+                (neighborTileType == TileType.SPAWN_POINT && map.getSpawnPointType(neighbor) == SpawnPointType.WATER)
+        }
+
+/**
  * Data class to hold hexagon geometry calculations
  */
-private data class HexGeometry(
+internal data class HexGeometry(
     val hexSize: Float,
     val hexWidth: Float,
     val hexHeight: Float,
@@ -70,7 +168,7 @@ private data class HexGeometry(
 /**
  * Calculate hexagon geometry for the minimap
  */
-private fun calculateHexGeometry(
+internal fun calculateHexGeometry(
     mapWidth: Int,
     mapHeight: Int,
     canvasWidth: Float,
@@ -106,10 +204,17 @@ private fun calculateHexGeometry(
 fun InitialSetupMinimap(
     map: EditorMap,
     placementMode: PlacementMode?,
+    selectedDefenderType: DefenderType? = null,
+    selectedAttackerType: AttackerType? = null,
+    selectedFiefType: FiefType? = null,
     initialData: InitialData = InitialData.EMPTY,
+    pendingPortalEntry: Position? = null,
     selectedElement: de.egril.defender.ui.editor.level.initialsetup.SelectedElement? = null,
     onTileClick: (Position) -> Unit = {},
+    onTileHover: (Position?) -> Unit = {},
 ) {
+    if (!map.canRenderMinimap()) return
+
     val isDarkMode = AppSettings.isDarkMode.value
     var hoveredPosition by remember { mutableStateOf<Position?>(null) }
 
@@ -188,6 +293,7 @@ fun InitialSetupMinimap(
                 },
     ) {
         val geometry = calculateHexGeometry(map.width, map.height, size.width, size.height)
+        val placementAreaSet = initialData.placementAreas.toSet()
 
         // Draw tiles
         for (row in 0 until map.height) {
@@ -203,14 +309,34 @@ fun InitialSetupMinimap(
                 val hasAttacker = initialData.attackers.any { it.position == pos }
                 val hasTrap = initialData.traps.any { it.position == pos }
                 val hasBarricade = initialData.barricades.any { it.position == pos }
+                val hasBridge = initialData.bridges.any { it.position == pos }
+                val hasFief = initialData.fiefs.any { it.position == pos }
+                val hasMushroom = initialData.mushrooms.any { it.position == pos }
+                val hasGargoyle = initialData.gargoyles.any { it.position == pos }
                 val barricadeAtPos = initialData.barricades.find { it.position == pos }
                 val isTowerBase = barricadeAtPos?.canSupportTower() == true
 
                 val isValidForPlacement =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
-                            isValidPlacement(pos, placementMode, map) || (isTowerBase && !hasDefender)
-                        else -> placementMode?.let { isValidPlacement(pos, it, map) } ?: false
+                            isValidPlacement(
+                                pos,
+                                placementMode,
+                                map,
+                                selectedDefenderType = selectedDefenderType,
+                            ) ||
+                                (isTowerBase && !hasDefender && selectedDefenderType != DefenderType.DWARVEN_MINE)
+                        PlacementMode.FIEF -> selectedFiefType?.let { isValidFiefPlacement(pos, it, map) } == true
+                        else ->
+                            placementMode?.let {
+                                isValidPlacement(
+                                    pos,
+                                    it,
+                                    map,
+                                    selectedDefenderType = selectedDefenderType,
+                                    selectedAttackerType = selectedAttackerType,
+                                )
+                            } ?: false
                     }
                 val isHovered = pos == hoveredPosition
                 val isSelected =
@@ -225,19 +351,33 @@ fun InitialSetupMinimap(
                         is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Barricade ->
                             selectedElement.barricade.position ==
                                 pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Bridge ->
+                            selectedElement.bridge.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Fief ->
+                            selectedElement.fief.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Mushroom ->
+                            selectedElement.mushroom.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Gargoyle ->
+                            selectedElement.gargoyle.position == pos
+                        is de.egril.defender.ui.editor.level.initialsetup.SelectedElement.Portal ->
+                            selectedElement.portal.entryPosition == pos ||
+                                selectedElement.portal.exitPosition == pos
                         null -> false
                     }
 
                 // Validation checks for placement conflicts
                 // Rule: Only one element (tower, trap, barricade, OR unit) is possible on a tile,
                 //       except towers can be placed on top of barricades that support towers (HP >= 100)
-                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade
+                val hasAnyElement = hasDefender || hasAttacker || hasTrap || hasBarricade || hasBridge || hasFief || hasMushroom || hasGargoyle
                 val hasConflict =
                     when (placementMode) {
                         PlacementMode.DEFENDER ->
                             // Allow tower on tower base as long as no tower is already there
-                            if (isTowerBase && !hasDefender) false else hasAnyElement
-                        PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE -> hasAnyElement
+                            if (isTowerBase && !hasDefender && selectedDefenderType != DefenderType.DWARVEN_MINE) false else hasAnyElement
+                        PlacementMode.ATTACKER, PlacementMode.TRAP, PlacementMode.BARRICADE,
+                        PlacementMode.BRIDGE, PlacementMode.FIEF, PlacementMode.MUSHROOM,
+                        PlacementMode.GARGOYLE,
+                        -> hasAnyElement
                         else -> false
                     }
 
@@ -247,6 +387,7 @@ fun InitialSetupMinimap(
                         hasConflict && isHovered && placementMode != null -> Color(0xFFFF4444) // Red for invalid placement
                         isHovered && isValidForPlacement -> Color(0xFF00FFFF) // Cyan for valid hover
                         tileType == TileType.BUILD_AREA -> if (isDarkMode) Color(0xFF2E5C1A) else Color(0xFF90EE90) // Always show BUILD_AREA in green (same as tower placement)
+                        isWaterTile(pos, map) -> if (isDarkMode) Color(0xFF0D47A1) else Color(0xFF42A5F5)
                         tileType == TileType.SPAWN_POINT -> if (isDarkMode) Color(0xFF8B0000) else Color(0xFFDC143C)
                         tileType == TileType.TARGET -> if (isDarkMode) Color(0xFF1E3A8A) else Color(0xFF4169E1)
                         tileType == TileType.PATH -> if (isDarkMode) Color(0xFF3E3528) else Color(0xFF8B4513)
@@ -254,80 +395,137 @@ fun InitialSetupMinimap(
                     }
 
                 drawHexagon(centerX, centerY, geometry.hexSize, color)
+                if (pos in placementAreaSet) {
+                    // Translucent overlay marks tiles where the player may place towers, traps and barricades
+                    drawHexagon(centerX, centerY, geometry.hexSize, Color(0x66FFD700))
+                }
             }
         }
 
-        // Draw existing placements on top
-        val iconSize = geometry.hexSize * 1.2f
+        drawInitialSetupElements(geometry, initialData, selectedElement, pendingPortalEntry)
+    }
 
-        // Draw defenders (towers)
-        initialData.defenders.forEach { defender ->
-            val offsetXHex = if (defender.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + defender.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + defender.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
+    LaunchedEffect(hoveredPosition) {
+        onTileHover(hoveredPosition)
+    }
+}
 
-            // Draw blue circle for tower
-            drawCircle(
-                color = Color(0xFF2196F3),
-                radius = iconSize / 2,
-                center = Offset(centerX, centerY),
-            )
+/**
+ * Draws the initial setup elements (towers, enemies, traps, barricades, bridges, fiefs,
+ * mushrooms, gargoyles and portals) on top of the already drawn tiles.
+ */
+internal fun DrawScope.drawInitialSetupElements(
+    geometry: HexGeometry,
+    initialData: InitialData,
+    selectedElement: SelectedElement?,
+    pendingPortalEntry: Position?,
+) {
+    fun centerOf(pos: Position): Offset {
+        val offsetXHex = if (pos.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
+        return Offset(
+            geometry.offsetXCanvas + pos.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2,
+            geometry.offsetYCanvas + pos.y * geometry.verticalSpacing + geometry.hexHeight / 2,
+        )
+    }
+
+    val iconSize = geometry.hexSize * 1.2f
+
+    initialData.defenders.forEach { defender ->
+        drawCircle(color = Color(0xFF2196F3), radius = iconSize / 2, center = centerOf(defender.position))
+    }
+
+    initialData.attackers.forEach { attacker ->
+        drawCircle(color = Color(0xFFFF0000), radius = iconSize / 2, center = centerOf(attacker.position))
+    }
+
+    initialData.traps.forEach { trap ->
+        val center = centerOf(trap.position)
+        val path =
+            Path().apply {
+                moveTo(center.x, center.y - iconSize / 2)
+                lineTo(center.x + iconSize / 2, center.y + iconSize / 2)
+                lineTo(center.x - iconSize / 2, center.y + iconSize / 2)
+                close()
+            }
+        drawPath(
+            path = path,
+            color = if (trap.type == "MAGICAL") Color(0xFF9C27B0) else Color(0xFF795548),
+        )
+    }
+
+    initialData.barricades.forEach { barricade ->
+        val center = centerOf(barricade.position)
+        drawRect(
+            color = Color(0xFF8D6E63),
+            topLeft = Offset(center.x - iconSize / 2, center.y - iconSize / 2),
+            size = Size(iconSize, iconSize),
+        )
+    }
+
+    initialData.bridges.forEach { bridge ->
+        val center = centerOf(bridge.position)
+        val color =
+            when (bridge.type) {
+                BridgeType.WOODEN -> Color(0xFF8B4513)
+                BridgeType.STONE -> Color(0xFF808080)
+                BridgeType.MAGICAL -> Color(0xFFFF00FF)
+            }
+        val arcWidth = iconSize
+        val arcHeight = iconSize * 0.6f
+        drawArc(
+            color = color,
+            startAngle = 180f,
+            sweepAngle = 180f,
+            useCenter = false,
+            topLeft = Offset(center.x - arcWidth / 2, center.y - arcHeight / 2 - iconSize * 0.15f),
+            size = Size(arcWidth, arcHeight),
+            style = Stroke(width = 1.6f),
+        )
+        drawArc(
+            color = color,
+            startAngle = 180f,
+            sweepAngle = 180f,
+            useCenter = false,
+            topLeft = Offset(center.x - arcWidth / 2, center.y - arcHeight / 2 + iconSize * 0.15f),
+            size = Size(arcWidth, arcHeight),
+            style = Stroke(width = 1.6f),
+        )
+    }
+
+    initialData.fiefs.forEach { fief ->
+        drawCircle(color = Color(0xFF4CAF50), radius = iconSize / 2, center = centerOf(fief.position))
+    }
+
+    initialData.mushrooms.forEach { mushroom ->
+        drawCircle(color = Color(0xFFFF8C00), radius = iconSize / 2, center = centerOf(mushroom.position))
+    }
+
+    initialData.gargoyles.forEach { gargoyle ->
+        val center = centerOf(gargoyle.position)
+        drawCircle(color = Color(0xFF7A7A7A), radius = iconSize / 2, center = center)
+        val isGargoyleSelected = (selectedElement as? SelectedElement.Gargoyle)?.gargoyle?.position == gargoyle.position
+        if (isGargoyleSelected) {
+            drawCircle(color = Color(0xFFFFD700), radius = iconSize / 2, center = center, style = Stroke(width = 3f))
         }
+    }
 
-        // Draw attackers (enemies)
-        initialData.attackers.forEach { attacker ->
-            val offsetXHex = if (attacker.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + attacker.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + attacker.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
+    initialData.portals.forEach { portal ->
+        val entry = centerOf(portal.entryPosition)
+        val exit = centerOf(portal.exitPosition)
+        drawLine(color = Color(0xFF8888FF), start = entry, end = exit, strokeWidth = 1.5f)
+        drawCircle(color = Color(0xFF3366FF), radius = iconSize / 2, center = entry)
+        drawCircle(color = Color(0xFFFF6600), radius = iconSize / 2, center = exit)
+    }
 
-            // Draw red circle for enemy
-            drawCircle(
-                color = Color(0xFFFF0000),
-                radius = iconSize / 2,
-                center = Offset(centerX, centerY),
-            )
-        }
-
-        // Draw traps
-        initialData.traps.forEach { trap ->
-            val offsetXHex = if (trap.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + trap.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + trap.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
-
-            // Draw triangle for trap
-            val path =
-                Path().apply {
-                    moveTo(centerX, centerY - iconSize / 2)
-                    lineTo(centerX + iconSize / 2, centerY + iconSize / 2)
-                    lineTo(centerX - iconSize / 2, centerY + iconSize / 2)
-                    close()
-                }
-            drawPath(
-                path = path,
-                color = if (trap.type == "MAGICAL") Color(0xFF9C27B0) else Color(0xFF795548),
-            )
-        }
-
-        // Draw barricades
-        initialData.barricades.forEach { barricade ->
-            val offsetXHex = if (barricade.position.y % 2 == 1) geometry.hexWidth / 2 else 0.0f
-            val centerX = geometry.offsetXCanvas + barricade.position.x * geometry.hexWidth + offsetXHex + geometry.hexWidth / 2
-            val centerY = geometry.offsetYCanvas + barricade.position.y * geometry.verticalSpacing + geometry.hexHeight / 2
-
-            // Draw square for barricade
-            drawRect(
-                color = Color(0xFF8D6E63),
-                topLeft = Offset(centerX - iconSize / 2, centerY - iconSize / 2),
-                size = Size(iconSize, iconSize),
-            )
-        }
+    pendingPortalEntry?.let { pending ->
+        drawCircle(color = Color(0x883366FF), radius = iconSize / 2, center = centerOf(pending))
     }
 }
 
 /**
  * Helper function to draw a hexagon (pointy-top orientation)
  */
-private fun DrawScope.drawHexagon(
+internal fun DrawScope.drawHexagon(
     centerX: Float,
     centerY: Float,
     radius: Float,

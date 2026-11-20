@@ -334,6 +334,7 @@ fun EndTurnConfirmationDialog(
     onAutoAttackAndConfirm: () -> Unit,
     onCancel: () -> Unit,
     showAutoAttackButton: Boolean = true,
+    autoAttackButtonText: String = "",
     showEndTurnWarning: Boolean = true,
     showWinLevelNow: Boolean = false,
     onWinLevelNow: () -> Unit = {},
@@ -442,7 +443,7 @@ fun EndTurnConfirmationDialog(
                                 containerColor = MaterialTheme.colorScheme.primary,
                             ),
                     ) {
-                        Text(stringResource(Res.string.auto_attack_and_end_turn))
+                        Text(autoAttackButtonText)
                     }
                 }
             }
@@ -478,6 +479,7 @@ fun SpecialActionsRemainingDialog(
                                 DefenderType.DWARVEN_MINE -> stringResource(Res.string.dwarven_mine_actions)
                                 DefenderType.ALCHEMY_TOWER -> stringResource(Res.string.alchemy_tower_actions)
                                 DefenderType.WIZARD_TOWER -> stringResource(Res.string.wizard_tower_actions)
+                                DefenderType.ALTAR -> stringResource(Res.string.activate_altar)
                                 else -> ""
                             }
                         if (message.isNotEmpty()) {

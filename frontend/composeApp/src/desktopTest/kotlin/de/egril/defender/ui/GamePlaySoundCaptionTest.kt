@@ -12,6 +12,7 @@ import de.egril.defender.game.LevelData
 import de.egril.defender.model.GameState
 import de.egril.defender.ui.gameplay.GamePlayScreen
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.saveCaptionsEnabled
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
