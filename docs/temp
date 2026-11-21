@@ -1,0 +1,174 @@
+Major refactoring to keep file lengths under 1000 lines. The following changes were made:
+
+
+* refactoring phase 1
+* refactoring phase 2: split SettingsDialog and MapEditorView
+* refactoring phase 3: move GamePlayScreen helpers to separate file
+* refactoring phase 3: move GameMap bridge visualization to separate file
+* refactoring phase 3: move GameMap overlays to separate file
+
+* Extract tile status overlays from GameMap
+
+Move the cooling, placement and trap overlay block of GridCellContent
+verbatim into GameMapTileOverlays.kt.
+
+* Extract tile death and coin animations from GameMap
+* Extract tile frame overlays from GameMap
+* Split GridCell derived state and frame into GridCellState.kt
+
+Move per-cell derived calculations into GridCellState (no remember) and
+the frame/background wrapper into GridCellFrame. Verbatim move; compile
+and desktopTest pass.
+
+* Split demo mode from GameViewModel into GameViewModelDemoMode.kt
+* Extract GameViewModel cheat and sandbox helpers into GameViewModelCheats.kt
+
+Moved verbatim as GameViewModel extension functions. Made members used
+across files internal. Test reflection now matches the mangled name.
+
+* Extract save/load from GameViewModel into extension file
+* Extract download/upload from GameViewModel into extension file
+* Extract player profiles, time tracking and messages from GameViewModel
+* Extract magic panel and spell system from GameViewModel into extension file
+* Extract tower actions from GameViewModel into extension file
+* Extract turn and level completion logic from GameViewModel
+* Extract level start logic from GameViewModel
+* Add production file length ratchet check
+* Move GridCell into GameMapGridCell.kt
+
+Verbatim move of GridCell and rememberDisplayedEnemyHealth out of GameMap.kt.
+GridCellContent visibility changed from private to internal so it is reachable
+from the new file.
+
+* Document 1000-line limit and file-length allowlist
+
+* Fix ambiguous path check in map editor preview
+
+Restore the neighbour count that was replaced by a constant '0 > 1'
+during the MapEditorView split, so isAmbiguous reflects real branching.
+
+* Extract in-game message dialogs from GamePlayScreen
+
+Move the GameMessage / narrative / event dialog rendering into
+GameMessageDialogs.kt. GamePlayScreen.kt drops from 3810 to 3488 lines.
+
+* Extract dialogs from GamePlayScreen into GamePlayDialogs
+
+* Split GameViewModel navigation and community code into extension files
+
+* Split GamePlayScreen into state holder, effects, keyboard, map and controls files
+
+Verbatim move: state moves into GamePlayScreenState, effects into
+GamePlayScreenEffects, keyboard handler, map area and controls area get
+their own files. Compile and desktopTest (1816) pass.
+
+* Split WorldMapPositionEditor into canvas, list item and dialog files
+
+Verbatim move; helpers used by the editor content become internal.
+Compile and desktopTest (1816) pass.
+
+* Split GameMap into derived-state holder, GridCellContent and GridCellAnimations
+
+GameGrid derived state moves into rememberGameGridDerivedState with a holder
+class; GridCellContent animations move into GridCellAnimations. Redundant
+null checks replace smart casts through holder fields. Compile and
+desktopTest (1816) pass.
+
+* Split IconUtils into gameplay and spell icon files
+
+Verbatim move of top-level icon composables; IconUtils keeps the general
+icons. Compile and desktopTest (1816) pass.
+
+* Move world map location generation out of ImageWorldMapView
+
+Verbatim move of the non-composable location and road generation into
+WorldMapLocationGeneration.kt. Compile and desktopTest (1816) pass.
+
+* Move AttackerType and Attacker extensions out of Attacker.kt
+
+Verbatim move into AttackerExtensions.kt. Compile and desktopTest (1816)
+pass.
+
+* Move Movement helper methods into MovementHelpers.kt
+
+Helpers become internal extension functions on Movement; the constructor
+dependencies they use become internal. Compile and desktopTest (1816) pass.
+
+* Move initial-data parsing out of EditorLevelJsonDeserializer
+
+Verbatim move of the initialData section into EditorLevelInitialDataParser.kt.
+Compile and desktopTest (1816) pass.
+
+* Move GameHeader helper composables into GameHeaderSections.kt
+
+Verbatim move; helpers called from GameHeader become internal. Compile and
+desktopTest (1816) pass.
+
+* Split LevelEditorComponents into spawn dialog and spawn section files
+
+Verbatim move. Compile and desktopTest (1816) pass.
+
+* Split EventsTab into editor and dropdown files
+
+Verbatim move; helpers used across files become internal. Compile and
+desktopTest (1816) pass.
+
+* Split InitialSetupSidebar into config panel and selected element files
+
+Verbatim move. Compile and desktopTest (1816) pass.
+
+* Split PlayerProfileScreen into component and account files
+
+Verbatim move; called helpers become internal. Compile and desktopTest
+(1816) pass.
+
+* Split DefenderInfo into button and tower message files
+
+Verbatim move; helpers used across files become internal. Compile and
+desktopTest (1816) pass.
+
+* Move CombatSystem attack modes into CombatAttackResolution.kt
+
+Attack resolution becomes internal CombatSystem extensions; members they
+use become internal. Compile and desktopTest (1816) pass.
+
+* Split EditorStorage into maps, levels and sequences extension files
+
+Object members move into EditorStorage extension functions in three files;
+callers outside the editor package import the extensions. Compile and
+desktopTest (1816) pass.
+
+* Split AppSettings save actions and serialization into extension files
+
+Verbatim move of save/mark/shortcut functions and settings-map
+serialization into AppSettings extension functions. Constants become
+internal; callers import the extensions. Compile and desktopTest (1816)
+pass.
+
+* Split MenuScreens into main menu layouts and level complete screen
+
+Main menu compact and desktop layouts move into MainMenuLayouts.kt; write
+sites pass as callbacks that set the same state. LevelCompleteScreen moves
+into its own file. Compile and desktopTest (1816) pass.
+
+* Split LevelEditor into view state, actions, dialogs, card and badge files
+
+LevelEditorView state moves into LevelEditorViewState; the body keeps
+remember semantics via with(state). Compile and desktopTest (1816) pass.
+
+* Split MapEditorView into state, grid, side panel, footer, dialogs and actions
+
+MapEditorViewState holds the view state; sub-composables become internal
+extensions on it. Compile and desktopTest (1816) pass.
+
+* Apply ktlint and shfmt fixes flagged by MegaLinter
+
+Formatting only (line wrapping and indentation); MegaLinter over the full
+codebase now reports no errors. Compile, desktopTest (1816) and the
+file-length ratchet pass.
+
+* Make Razzik rocket randomness injectable and seed RazzikRocketTest
+
+RazzikAbilities and EnemyAbilitySystem take a Random with a default, so the
+test runs deterministically instead of depending on unseeded global random.
+Compile, desktopTest (1816) and MegaLinter pass.

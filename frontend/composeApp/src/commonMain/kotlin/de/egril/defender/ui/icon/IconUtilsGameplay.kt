@@ -472,6 +472,56 @@ fun TowerIcon(
 }
 
 /**
+ * Displays a narrow passage (two converging lines with a bottleneck) drawn with Canvas.
+ * The [contentDescription] is the localized label, since the icon replaces visible text.
+ */
+@Composable
+fun NarrowPathIcon(
+    contentDescription: String,
+    modifier: Modifier = Modifier.Companion,
+    size: Dp = 16.dp,
+    tint: Color = LocalContentColor.current,
+) {
+    Canvas(
+        modifier =
+            modifier
+                .size(size)
+                .semantics { this.contentDescription = contentDescription },
+    ) {
+        val s = this.size.minDimension
+        val strokeWidth = s * 0.1f
+        drawLine(
+            color = tint,
+            start = Offset(0f, s * 0.2f),
+            end = Offset(s * 0.5f, s * 0.5f),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(0f, s * 0.8f),
+            end = Offset(s * 0.5f, s * 0.5f),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(s * 0.5f, s * 0.5f),
+            end = Offset(s, s * 0.2f),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+        drawLine(
+            color = tint,
+            start = Offset(s * 0.5f, s * 0.5f),
+            end = Offset(s, s * 0.8f),
+            strokeWidth = strokeWidth,
+            cap = StrokeCap.Round,
+        )
+    }
+}
+
+/**
  * Displays a crosshair (ring with a centre cross) drawn with Canvas.
  * The [contentDescription] is the localized label, since the icon replaces visible text.
  */

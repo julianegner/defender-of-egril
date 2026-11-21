@@ -38,6 +38,7 @@ internal fun MapEditorViewState.MapEditorViewGrid(
     currentMap: EditorMap,
     backgroundImagePainter: BitmapPainter?,
     pathPreviews: List<MapPathPreview>,
+    highlightedNarrowPaths: Set<Position> = emptySet(),
 ) {
     val previewCells = remember(pathPreviews) { pathPreviews.flatMap { it.path }.toSet() }
     val replacementHighlightCells =
@@ -307,6 +308,7 @@ internal fun MapEditorViewState.MapEditorViewGrid(
                     position == ringStartHighlightCell -> RING_START_HIGHLIGHT_COLOR
                     position in copyHighlightCells -> COPY_HIGHLIGHT_COLOR
                     position in replacementHighlightCells -> REPLACE_HIGHLIGHT_COLOR
+                    position in highlightedNarrowPaths -> NARROW_PATH_HIGHLIGHT_COLOR
                     position in unreachableSpawns -> Color.Red
                     position in ambiguousPreviewCells -> Color(0xFFFFC107)
                     position in previewCells -> Color(0xFF00BCD4)
@@ -319,7 +321,8 @@ internal fun MapEditorViewState.MapEditorViewGrid(
                     position == pasteHighlightCell ||
                         position == ringStartHighlightCell ||
                         position in copyHighlightCells ||
-                        position in replacementHighlightCells -> 3.dp
+                        position in replacementHighlightCells ||
+                        position in highlightedNarrowPaths -> 3.dp
                     position in previewCells || position in unreachableSpawns -> 2.5.dp
                     else -> 1.5.dp
                 },

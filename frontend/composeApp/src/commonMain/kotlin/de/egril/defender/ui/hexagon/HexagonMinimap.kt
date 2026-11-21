@@ -16,6 +16,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.IntSize
@@ -34,6 +35,7 @@ import de.egril.defender.ui.getLocalizedName
 import de.egril.defender.ui.settings.AppSettings
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.sin
 import kotlin.math.sqrt
 
@@ -49,6 +51,8 @@ data class MinimapConfig(
     val backgroundColor: Color = Color(0xCC000000),
     val borderColor: Color = Color.White,
     val minimapSizeDp: Float = 120f, // Size in dp for viewport calculations
+    val highlightedPositions: Set<Position> = emptySet(),
+    val highlightColor: Color = Color.Magenta,
 )
 
 internal fun resolveMinimapTileType(
@@ -300,6 +304,9 @@ private fun HexagonMinimapContent(
 
                     // Draw hexagon
                     drawHexagon(centerX, centerY, hexSize, color)
+                    if (position in config.highlightedPositions) {
+                        drawHexagonOutline(centerX, centerY, hexSize, config.highlightColor)
+                    }
                 }
             }
 
@@ -545,15 +552,36 @@ private fun DrawScope.drawHexagon(
     radius: Float,
     color: Color,
 ) {
-    val path =
-        Path().apply {
-            for (i in 0 until 6) {
-                val angle = PI * (60.0 * i - 30.0) / 180.0
-                val x = centerX + (radius * cos(angle)).toFloat()
-                val y = centerY + (radius * sin(angle)).toFloat()
-                if (i == 0) moveTo(x, y) else lineTo(x, y)
-            }
-            close()
-        }
-    drawPath(path, color)
+    drawPath(hexagonPath(centerX, centerY, radius), color)
 }
+
+/**
+ * Draw only the outline of a hexagon, used to mark highlighted tiles on top of their fill
+ */
+private fun DrawScope.drawHexagonOutline(
+    centerX: Float,
+    centerY: Float,
+    radius: Float,
+    color: Color,
+) {
+    drawPath(
+        hexagonPath(centerX, centerY, radius),
+        color,
+        style = Stroke(width = max(1.5f, radius * 0.25f)),
+    )
+}
+
+private fun hexagonPath(
+    centerX: Float,
+    centerY: Float,
+    radius: Float,
+): Path =
+    Path().apply {
+        for (i in 0 until 6) {
+            val angle = PI * (60.0 * i - 30.0) / 180.0
+            val x = centerX + (radius * cos(angle)).toFloat()
+            val y = centerY + (radius * sin(angle)).toFloat()
+            if (i == 0) moveTo(x, y) else lineTo(x, y)
+        }
+        close()
+    }

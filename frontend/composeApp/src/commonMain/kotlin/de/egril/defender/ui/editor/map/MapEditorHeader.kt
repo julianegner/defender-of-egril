@@ -27,6 +27,7 @@ import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.ui.TooltipWrapper
 import de.egril.defender.ui.icon.CrosshairIcon
 import de.egril.defender.ui.icon.MagnifyingGlassIcon
+import de.egril.defender.ui.icon.NarrowPathIcon
 import de.egril.defender.ui.icon.RedCircleIcon
 import defender_of_egril.composeapp.generated.resources.*
 
@@ -73,6 +74,8 @@ fun MapEditorHeader(
     onMapOverlayAlphaChange: (Float) -> Unit = {},
     showCrosshair: Boolean = false,
     onToggleCrosshair: () -> Unit = {},
+    showNarrowPaths: Boolean = false,
+    onToggleNarrowPaths: () -> Unit = {},
     onUndo: () -> Unit = {},
     canUndo: Boolean = false,
     onRedo: () -> Unit = {},
@@ -89,6 +92,8 @@ fun MapEditorHeader(
         onOpenMapPreview = onOpenMapPreview,
         showCrosshair = showCrosshair,
         onToggleCrosshair = onToggleCrosshair,
+        showNarrowPaths = showNarrowPaths,
+        onToggleNarrowPaths = onToggleNarrowPaths,
         onUndo = onUndo,
         canUndo = canUndo,
         onRedo = onRedo,
@@ -478,6 +483,8 @@ private fun CollapsedMapEditorHeader(
     onOpenMapPreview: () -> Unit = {},
     showCrosshair: Boolean = false,
     onToggleCrosshair: () -> Unit = {},
+    showNarrowPaths: Boolean = false,
+    onToggleNarrowPaths: () -> Unit = {},
     onUndo: () -> Unit = {},
     canUndo: Boolean = false,
     onRedo: () -> Unit = {},
@@ -548,6 +555,8 @@ private fun CollapsedMapEditorHeader(
             MapEditorToolToggles(
                 showCrosshair = showCrosshair,
                 onToggleCrosshair = onToggleCrosshair,
+                showNarrowPaths = showNarrowPaths,
+                onToggleNarrowPaths = onToggleNarrowPaths,
             )
             if (validationIssues.isNotEmpty()) {
                 val notReadyLabel = stringResource(Res.string.map_not_ready_indicator)
@@ -623,7 +632,27 @@ private fun CollapsedMapEditorHeader(
 internal fun MapEditorToolToggles(
     showCrosshair: Boolean,
     onToggleCrosshair: () -> Unit,
+    showNarrowPaths: Boolean,
+    onToggleNarrowPaths: () -> Unit,
 ) {
+    val mapNarrowPathsLabel = stringResource(Res.string.map_narrow_paths)
+    TooltipWrapper(text = mapNarrowPathsLabel) {
+        IconButton(
+            onClick = onToggleNarrowPaths,
+            modifier = Modifier.semantics { contentDescription = mapNarrowPathsLabel },
+            colors =
+                IconButtonDefaults.iconButtonColors(
+                    contentColor =
+                        if (showNarrowPaths) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                ),
+        ) {
+            NarrowPathIcon(contentDescription = mapNarrowPathsLabel, size = 20.dp)
+        }
+    }
     val mapCrosshairLabel = stringResource(Res.string.map_crosshair)
     TooltipWrapper(text = mapCrosshairLabel) {
         IconButton(

@@ -94,6 +94,7 @@ internal class MapEditorViewState(
     var showMapFlowOverlay by mutableStateOf(false)
     var showMapPathPreviewOverlay by mutableStateOf(false)
     var showCrosshair by mutableStateOf(false)
+    var showNarrowPaths by mutableStateOf(false)
     var copyFromX by mutableStateOf("0")
     var copyFromY by mutableStateOf("0")
     var copyToX by mutableStateOf((map.width - 1).coerceAtLeast(0).toString())

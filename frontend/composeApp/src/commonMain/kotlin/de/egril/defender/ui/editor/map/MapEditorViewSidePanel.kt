@@ -475,6 +475,8 @@ internal fun MapEditorViewState.MapEditorViewSidePanel(
             onMapOverlayAlphaChange = { mapOverlayAlpha = it },
             showCrosshair = showCrosshair,
             onToggleCrosshair = { showCrosshair = !showCrosshair },
+            showNarrowPaths = showNarrowPaths,
+            onToggleNarrowPaths = { showNarrowPaths = !showNarrowPaths },
             onUndo = {
                 undoHistory.lastOrNull()?.let { snapshot ->
                     undoHistory = undoHistory.dropLast(1)

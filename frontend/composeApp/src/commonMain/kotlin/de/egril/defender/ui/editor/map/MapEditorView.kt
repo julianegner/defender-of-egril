@@ -48,6 +48,8 @@ fun MapEditorView(
                 )
             }
         val pathPreviews = remember(currentMap) { currentMap.previewPaths() }
+        val narrowPathPositions = remember(currentMap) { currentMap.findNarrowPathPositions() }
+        val highlightedNarrowPaths = if (showNarrowPaths) narrowPathPositions else emptySet()
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -65,7 +67,7 @@ fun MapEditorView(
                                 .fillMaxHeight()
                                 .padding(8.dp),
                     ) {
-                        MapEditorViewGrid(currentMap, backgroundImagePainter, pathPreviews)
+                        MapEditorViewGrid(currentMap, backgroundImagePainter, pathPreviews, highlightedNarrowPaths)
                         MapControls(
                             mapControlState =
                                 MapControlState(
@@ -96,6 +98,8 @@ fun MapEditorView(
                                     MinimapConfig(
                                         showViewport = true,
                                         minimapSizeDp = 150f,
+                                        highlightedPositions = highlightedNarrowPaths,
+                                        highlightColor = NARROW_PATH_HIGHLIGHT_COLOR,
                                     ),
                                 scale = zoomLevel,
                                 offsetX = offsetX,
