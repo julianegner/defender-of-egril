@@ -450,6 +450,17 @@
     <string name="map_validation_no_target">La carte n'a pas de cible.</string>
     <string name="map_validation_no_buildable_tiles">La carte n'a pas de tuiles constructibles (zones de construction ou tuiles de rivière).</string>
     <string name="map_validation_no_path_from_spawn_to_target">Il n'y a pas de chemin connecté d'un point d'apparition à une cible.</string>
+    <string name="level_not_ready_reasons">Pourquoi ce niveau n'est pas prêt :</string>
+    <string name="level_issue_no_towers">Le niveau ne dispose d'aucune tour disponible.</string>
+    <string name="level_issue_no_spawns">Aucun point d'apparition d'ennemis n'est configuré pour le niveau.</string>
+    <string name="level_issue_spawn_groups_invalid">Les groupes d'apparition contiennent des erreurs.</string>
+    <string name="level_issue_no_start_coins">Les pièces de départ doivent être supérieures à zéro.</string>
+    <string name="level_issue_no_start_health">Les points de vie de départ doivent être supérieurs à zéro.</string>
+    <string name="level_issue_map_missing">La carte de ce niveau est introuvable.</string>
+    <string name="level_issue_map_not_ready">La carte n'est pas prête à l'emploi.</string>
+    <string name="level_issue_portals_missing">La carte nécessite des portails, mais le niveau n'en a aucun.</string>
+    <string name="level_issue_no_buildable_tile_fallback">La carte n'a aucune case constructible, le niveau a donc besoin de supports ou de bases de tour.</string>
+    <string name="level_issue_waypoints_invalid">Certains points de passage ne mènent à aucune cible.</string>
     <string name="replace_tiles_limit_to_area">Limiter le remplacement à une zone</string>
     <string name="replace_tiles_source">Type de tuile source</string>
     <string name="replace_tiles_target">Type de tuile cible</string>

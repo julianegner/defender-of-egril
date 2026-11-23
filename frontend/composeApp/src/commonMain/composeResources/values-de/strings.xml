@@ -450,6 +450,17 @@
     <string name="map_validation_no_target">Die Karte hat kein Ziel.</string>
     <string name="map_validation_no_buildable_tiles">Die Karte hat keine bebaubaren Felder (Baubereiche oder Flussfelder).</string>
     <string name="map_validation_no_path_from_spawn_to_target">Es gibt keinen verbundenen Pfad von einem Spawn-Punkt zu einem Ziel.</string>
+    <string name="level_not_ready_reasons">Warum das Level nicht bereit ist:</string>
+    <string name="level_issue_no_towers">Das Level hat keine verfügbaren Türme.</string>
+    <string name="level_issue_no_spawns">Im Level sind keine Gegner-Spawns konfiguriert.</string>
+    <string name="level_issue_spawn_groups_invalid">Die Spawn-Gruppen enthalten Fehler.</string>
+    <string name="level_issue_no_start_coins">Die Start-Münzen müssen größer als null sein.</string>
+    <string name="level_issue_no_start_health">Die Start-Lebenspunkte müssen größer als null sein.</string>
+    <string name="level_issue_map_missing">Die Karte dieses Levels wurde nicht gefunden.</string>
+    <string name="level_issue_map_not_ready">Die Karte ist nicht bereit zur Verwendung.</string>
+    <string name="level_issue_portals_missing">Die Karte benötigt Portale, das Level hat aber keine.</string>
+    <string name="level_issue_no_buildable_tile_fallback">Die Karte hat keine bebaubaren Felder, daher braucht das Level Stützen oder Turmfundamente.</string>
+    <string name="level_issue_waypoints_invalid">Einige Wegpunkte führen zu keinem Ziel.</string>
     <string name="replace_tiles_limit_to_area">Ersetzung auf Bereich begrenzen</string>
     <string name="replace_tiles_source">Quell-Kacheltyp</string>
     <string name="replace_tiles_target">Ziel-Kacheltyp</string>

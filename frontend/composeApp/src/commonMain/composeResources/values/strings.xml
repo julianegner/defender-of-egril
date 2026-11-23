@@ -456,6 +456,17 @@
     <string name="map_validation_no_target">The map has no target.</string>
     <string name="map_validation_no_buildable_tiles">The map has no buildable tiles (build areas or river tiles).</string>
     <string name="map_validation_no_path_from_spawn_to_target">There is no connected path from a spawn point to a target.</string>
+    <string name="level_not_ready_reasons">Why this level is not ready:</string>
+    <string name="level_issue_no_towers">The level has no towers available.</string>
+    <string name="level_issue_no_spawns">The level has no enemy spawns configured.</string>
+    <string name="level_issue_spawn_groups_invalid">The spawn groups contain errors.</string>
+    <string name="level_issue_no_start_coins">Start coins must be greater than zero.</string>
+    <string name="level_issue_no_start_health">Start health points must be greater than zero.</string>
+    <string name="level_issue_map_missing">The map of this level could not be found.</string>
+    <string name="level_issue_map_not_ready">The map is not ready to use.</string>
+    <string name="level_issue_portals_missing">The map requires portals, but the level has none.</string>
+    <string name="level_issue_no_buildable_tile_fallback">The map has no buildable tiles, so the level needs supports or tower bases.</string>
+    <string name="level_issue_waypoints_invalid">Some waypoints do not lead to a target.</string>
     <string name="replace_tiles_limit_to_area">Limit replacement to area</string>
     <string name="replace_tiles_source">Source tile type</string>
     <string name="replace_tiles_target">Target tile type</string>

@@ -691,9 +691,10 @@ data class EditorLevel(
     fun hasInitialTowerBases(): Boolean = getEffectiveInitialData().barricades.any { it.supportsTower }
 
     /**
-     * Returns true when a level can satisfy a no-buildable-tile map by using supports or tower bases.
+     * Returns true when a level can satisfy a no-buildable-tile map by using supports, tower bases,
+     * or auto tower bases (towers placed on path tiles with a base barricade).
      */
-    fun hasNoBuildableTileFallback(): Boolean = supports.isNotEmpty() || hasInitialTowerBases()
+    fun hasNoBuildableTileFallback(): Boolean = supports.isNotEmpty() || hasInitialTowerBases() || autoTowerBase
 
     /**
      * Validates that all waypoints form valid chains that eventually lead to a target.

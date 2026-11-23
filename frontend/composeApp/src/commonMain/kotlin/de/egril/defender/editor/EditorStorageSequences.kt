@@ -360,52 +360,7 @@ fun EditorStorage.isLevelReadyToPlay(levelId: String): Boolean {
  * @param level The level to check
  * @return true if the level is ready to play, false otherwise
  */
-fun EditorStorage.isLevelReadyToPlay(level: EditorLevel): Boolean {
-    if (!level.isReadyToPlay()) {
-        return false
-    }
-
-    // Also check if the map is ready to use
-    val map = getMap(level.mapId)
-    if (map == null) {
-        return false
-    }
-
-    if (!level.isSandbox && level.spawnGroups?.let { spawnGroupIssues(it, map, level.events.stoppedSpawnLoopIds()).isNotEmpty() } == true) {
-        return false
-    }
-
-    // Validate that the map has a structurally valid path.
-    // Always include rivers as walkable here (matching the editor's default), so that
-    // community maps whose path crosses river tiles are not incorrectly rejected.
-    // Whether enemies can actually cross rivers during gameplay is determined by the
-    // pathfinding system at runtime, not at level-load time.
-    if (!map.validateReadyToUse(includeRiversAsWalkable = true)) {
-        return false
-    }
-
-    // When the map allows no direct path, the level's portals must bridge the gap.
-    if (map.allowNoDirectPath) {
-        val portals = level.getEffectiveInitialData().portals
-        if (!map.validateReadyToUseWithPortals(portals, includeRiversAsWalkable = true)) {
-            return false
-        }
-    }
-
-    if (map.allowNoBuildableTiles && !map.hasBuildablePlacementTiles() && !level.hasNoBuildableTileFallback()) {
-        return false
-    }
-
-    // check if the waypoints of the level are valid
-    val targets = map.getTargets()
-    if (targets.isEmpty()) {
-        return false
-    }
-
-    val spawnPoints = map.getSpawnPoints()
-    val waypointValidationResult = level.validateWaypointsDetailed(targetPositions = targets, spawnPoints = spawnPoints)
-    return waypointValidationResult.isValid
-}
+fun EditorStorage.isLevelReadyToPlay(level: EditorLevel): Boolean = getLevelReadinessIssues(level).isEmpty()
 
 /**
  * Validates the prerequisites configuration for all levels.

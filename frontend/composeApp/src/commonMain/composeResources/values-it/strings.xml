@@ -450,6 +450,17 @@
     <string name="map_validation_no_target">La mappa non ha un obiettivo.</string>
     <string name="map_validation_no_buildable_tiles">La mappa non ha tessere costruibili (aree edificabili o tessere fiume).</string>
     <string name="map_validation_no_path_from_spawn_to_target">Non c'è un percorso collegato da un punto di generazione a un obiettivo.</string>
+    <string name="level_not_ready_reasons">Perché questo livello non è pronto:</string>
+    <string name="level_issue_no_towers">Il livello non ha torri disponibili.</string>
+    <string name="level_issue_no_spawns">Nel livello non sono configurati punti di generazione dei nemici.</string>
+    <string name="level_issue_spawn_groups_invalid">I gruppi di generazione contengono errori.</string>
+    <string name="level_issue_no_start_coins">Le monete iniziali devono essere maggiori di zero.</string>
+    <string name="level_issue_no_start_health">I punti vita iniziali devono essere maggiori di zero.</string>
+    <string name="level_issue_map_missing">La mappa di questo livello non è stata trovata.</string>
+    <string name="level_issue_map_not_ready">La mappa non è pronta per l'uso.</string>
+    <string name="level_issue_portals_missing">La mappa richiede dei portali, ma il livello non ne ha.</string>
+    <string name="level_issue_no_buildable_tile_fallback">La mappa non ha caselle edificabili, quindi il livello richiede supporti o basi per torri.</string>
+    <string name="level_issue_waypoints_invalid">Alcuni waypoint non portano a un obiettivo.</string>
     <string name="replace_tiles_limit_to_area">Limita la sostituzione a un'area</string>
     <string name="replace_tiles_source">Tipo di tessera sorgente</string>
     <string name="replace_tiles_target">Tipo di tessera destinazione</string>

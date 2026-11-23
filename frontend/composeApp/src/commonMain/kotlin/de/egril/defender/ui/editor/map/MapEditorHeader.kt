@@ -21,10 +21,9 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorMap
-import de.egril.defender.editor.MapValidationIssue
 import de.egril.defender.editor.TileType
-import de.egril.defender.model.MIN_ROTATABLE_REGION_TILES
 import de.egril.defender.ui.TooltipWrapper
+import de.egril.defender.ui.editor.localizedText
 import de.egril.defender.ui.icon.CrosshairIcon
 import de.egril.defender.ui.icon.MagnifyingGlassIcon
 import de.egril.defender.ui.icon.NarrowPathIcon
@@ -596,18 +595,7 @@ private fun CollapsedMapEditorHeader(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     validationIssues.forEach { issue ->
-                        val issueText =
-                            when (issue) {
-                                MapValidationIssue.INVALID_MAP_DATA -> stringResource(Res.string.map_validation_invalid_map_data)
-                                MapValidationIssue.UNSUPPORTED_SIZE -> stringResource(Res.string.map_validation_unsupported_size)
-                                MapValidationIssue.NO_SPAWN_POINT -> stringResource(Res.string.map_validation_no_spawn_point)
-                                MapValidationIssue.NO_TARGET -> stringResource(Res.string.map_validation_no_target)
-                                MapValidationIssue.NO_BUILDABLE_TILES -> stringResource(Res.string.map_validation_no_buildable_tiles)
-                                MapValidationIssue.NO_PATH_FROM_SPAWN_TO_TARGET ->
-                                    stringResource(Res.string.map_validation_no_path_from_spawn_to_target)
-                                MapValidationIssue.ROTATABLE_ZONE_TOO_SMALL ->
-                                    stringResource(Res.string.map_validation_rotatable_zone_too_small, MIN_ROTATABLE_REGION_TILES)
-                            }
+                        val issueText = issue.localizedText()
                         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                             Text("•")
                             Text(issueText)

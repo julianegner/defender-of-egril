@@ -450,6 +450,17 @@
     <string name="map_validation_no_target">El mapa no tiene objetivo.</string>
     <string name="map_validation_no_buildable_tiles">El mapa no tiene casillas construibles (áreas de construcción o casillas de río).</string>
     <string name="map_validation_no_path_from_spawn_to_target">No hay un camino conectado desde un punto de aparición hasta un objetivo.</string>
+    <string name="level_not_ready_reasons">Por qué este nivel no está listo:</string>
+    <string name="level_issue_no_towers">El nivel no tiene torres disponibles.</string>
+    <string name="level_issue_no_spawns">El nivel no tiene puntos de aparición de enemigos configurados.</string>
+    <string name="level_issue_spawn_groups_invalid">Los grupos de aparición contienen errores.</string>
+    <string name="level_issue_no_start_coins">Las monedas iniciales deben ser mayores que cero.</string>
+    <string name="level_issue_no_start_health">Los puntos de vida iniciales deben ser mayores que cero.</string>
+    <string name="level_issue_map_missing">No se encontró el mapa de este nivel.</string>
+    <string name="level_issue_map_not_ready">El mapa no está listo para usarse.</string>
+    <string name="level_issue_portals_missing">El mapa requiere portales, pero el nivel no tiene ninguno.</string>
+    <string name="level_issue_no_buildable_tile_fallback">El mapa no tiene casillas edificables, así que el nivel necesita soportes o bases de torre.</string>
+    <string name="level_issue_waypoints_invalid">Algunos puntos de ruta no llevan a un objetivo.</string>
     <string name="replace_tiles_limit_to_area">Limitar reemplazo a un área</string>
     <string name="replace_tiles_source">Tipo de baldosa origen</string>
     <string name="replace_tiles_target">Tipo de baldosa destino</string>

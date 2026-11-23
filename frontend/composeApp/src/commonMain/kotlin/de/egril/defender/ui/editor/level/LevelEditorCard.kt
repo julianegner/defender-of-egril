@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.hyperether.resources.stringResource
 import de.egril.defender.editor.*
+import de.egril.defender.ui.editor.localizedText
 import de.egril.defender.ui.icon.*
 import de.egril.defender.ui.loadgame.SavefileLocationChip
 import defender_of_egril.composeapp.generated.resources.*
@@ -34,6 +35,9 @@ internal fun LevelCard(
                 spawn.spawnPoint != null && spawn.spawnPoint !in mapSpawnPoints
             }
         }
+
+    val readinessIssues = EditorStorage.getLevelReadinessIssues(level)
+    val isReady = readinessIssues.isEmpty()
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -105,18 +109,24 @@ internal fun LevelCard(
                         )
                     }
                     Text(
-                        text =
-                            if (EditorStorage.isLevelReadyToPlay(
-                                    level,
-                                )
-                            ) {
-                                stringResource(Res.string.ready_to_use)
-                            } else {
-                                stringResource(Res.string.not_ready)
-                            },
+                        text = if (isReady) stringResource(Res.string.ready_to_use) else stringResource(Res.string.not_ready),
                         style = MaterialTheme.typography.bodySmall,
-                        color = if (EditorStorage.isLevelReadyToPlay(level)) Color.Green else Color.Red,
+                        color = if (isReady) Color.Green else Color.Red,
                     )
+                    if (!isReady) {
+                        Text(
+                            text = stringResource(Res.string.level_not_ready_reasons),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Red,
+                        )
+                        readinessIssues.forEach { issue ->
+                            Text(
+                                text = "• ${issue.localizedText()}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color.Red,
+                            )
+                        }
+                    }
                 }
 
                 // Badges in upper right corner
@@ -141,7 +151,7 @@ internal fun LevelCard(
                             )
                         }
                         // Ready/not ready check indicator
-                        if (EditorStorage.isLevelReadyToPlay(level)) {
+                        if (isReady) {
                             CheckmarkIcon(
                                 size = 20.dp,
                                 tint = Color.Green,
