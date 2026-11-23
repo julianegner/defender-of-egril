@@ -68,7 +68,8 @@ class FreyaShieldWallTest {
     }
 
     @Test
-    fun rearAttacksStillDamageFreya() {
+    fun rearAttacksAreBlockedWhenFreyaTurnsShieldToMostDangerousTower() {
+        // Freya moves East, but the only threat is behind her, so she turns the shield West to face it.
         val state = GameState(createTestLevel())
         val engine = GameEngine(state)
         val rearTower = defender(1, DefenderType.BOW_TOWER, Position(1, 3))
@@ -79,7 +80,23 @@ class FreyaShieldWallTest {
 
         assertTrue(engine.defenderAttack(rearTower.id, freya.id), "Rear tower should be allowed to attack Freya")
 
-        assertEquals(freya.maxHealth - rearTower.type.baseDamage, freya.currentHealth.value, "Rear attacks should not be blocked")
+        assertEquals(freya.maxHealth, freya.currentHealth.value, "Shield should turn toward the most dangerous tower")
+    }
+
+    @Test
+    fun shieldKeepsMovementDirectionWhenItBlocksAsMuchDamageAsTheDangerousTower() {
+        // Eastern tower is equally dangerous and listed first, so the tie keeps Freya facing her movement direction.
+        val state = GameState(createTestLevel())
+        val engine = GameEngine(state)
+        val eastTower = defender(1, DefenderType.BOW_TOWER, Position(6, 3))
+        val rearTower = defender(2, DefenderType.BOW_TOWER, Position(1, 3))
+        val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
+
+        state.defenders.addAll(listOf(eastTower, rearTower))
+        state.attackers.add(freya)
+
+        assertTrue(engine.defenderAttack(rearTower.id, freya.id))
+        assertEquals(freya.maxHealth - rearTower.type.baseDamage, freya.currentHealth.value, "Tie should keep the movement-facing shield")
     }
 
     @Test
@@ -167,18 +184,18 @@ class FreyaShieldWallTest {
         state.defenders.addAll(listOf(northTower, southTower))
         state.attackers.add(freya)
 
-        // Both towers should be allowed to attack Freya (they are side attacks, not frontal).
+        // Both towers may attack Freya. Freya turns her shield toward one equally dangerous tower,
+        // so exactly one of the two hits go through.
         val northDamaged = engine.defenderAttack(northTower.id, freya.id)
         val southDamaged = engine.defenderAttack(southTower.id, freya.id)
 
-        assertTrue(northDamaged, "North tower should be allowed to attack Freya (side attack)")
-        assertTrue(southDamaged, "South tower should be allowed to attack Freya (side attack)")
+        assertTrue(northDamaged, "North tower should be allowed to attack Freya")
+        assertTrue(southDamaged, "South tower should be allowed to attack Freya")
 
-        val expectedHealth = freya.maxHealth - northTower.type.baseDamage - southTower.type.baseDamage
         assertEquals(
-            expectedHealth,
+            freya.maxHealth - northTower.type.baseDamage,
             freya.currentHealth.value,
-            "Both north and south towers should deal damage (neither is a frontal attack)",
+            "Exactly one of the equally dangerous side towers should be blocked by the turned shield",
         )
     }
 
@@ -209,13 +226,15 @@ class FreyaShieldWallTest {
     fun southTowerIsAlsoBlockedFromAttackingGoblinBehindShield() {
         // Mirror of the north case: south tower at (4,5) → goblin at (3,3).
         // The hex line passes through the SW-flank at (4,4), blocking the attack.
+        // An equally dangerous east tower keeps the shield facing the movement direction (tie-break).
         val state = GameState(createTestLevel())
         val engine = GameEngine(state)
+        val eastTower = defender(2, DefenderType.BOW_TOWER, Position(6, 3))
         val southTower = defender(1, DefenderType.BOW_TOWER, Position(4, 5))
         val freya = attacker(1, AttackerType.FALLEN_SHIELDMAIDEN_FREYA, Position(4, 3))
         val goblin = attacker(2, AttackerType.GOBLIN, Position(3, 3))
 
-        state.defenders.add(southTower)
+        state.defenders.addAll(listOf(eastTower, southTower))
         state.attackers.addAll(listOf(freya, goblin))
 
         assertTrue(engine.defenderAttack(southTower.id, goblin.id), "Tower should be allowed to target the goblin")

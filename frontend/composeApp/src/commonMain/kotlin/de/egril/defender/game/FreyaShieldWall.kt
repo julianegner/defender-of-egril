@@ -2,10 +2,12 @@ package de.egril.defender.game
 
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.AttackType
 import de.egril.defender.model.Defender
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Position
 import de.egril.defender.model.getHexDirectionTo
+import de.egril.defender.model.previewAttackDamage
 import de.egril.defender.model.getHexNeighbor
 import de.egril.defender.model.hexDistanceTo
 import kotlin.math.abs
@@ -48,7 +50,7 @@ fun GameState.isShieldWallAttackBlocked(
  * Arc data used by the map overlay to draw the shield wall front face.
  *
  * @param positions All tiles covered by the shield wall, including Freya's own tile.
- * @param frontDirection The hex direction Freya is moving (0=E, 1=NE, 2=NW, 3=W, 4=SW, 5=SE).
+ * @param frontDirection The hex direction the shield faces (0=E, 1=NE, 2=NW, 3=W, 4=SW, 5=SE).
  */
 data class FreyaShieldWallArc(
     val positions: Set<Position>,
@@ -164,7 +166,41 @@ private fun GameState.freyaShieldWallPositions(
     return positions
 }
 
+/**
+ * Freya faces either her movement direction or the direction of the most dangerous tower in range,
+ * whichever blocks more tower damage. Ties keep the movement direction.
+ */
 private fun GameState.shieldWallFrontDirection(
+    freya: Attacker,
+    pathfinding: PathfindingSystem,
+): Int? {
+    val freyaPosition = freya.position.value
+    val movementDirection = movementFrontDirection(freya, pathfinding)
+    val mostDangerousThreat = shieldThreats(freyaPosition).maxByOrNull { it.previewAttackDamage() }
+        ?: return movementDirection
+    val candidates =
+        (listOfNotNull(movementDirection) + hexDirectionsToward(freyaPosition, mostDangerousThreat.position.value))
+            .distinct()
+    return candidates.maxByOrNull { blockedThreatDamage(freyaPosition, it) } ?: movementDirection
+}
+
+/** Towers that can hit Freya from range. Ballistas are excluded because they fire over the shield. */
+private fun GameState.shieldThreats(freyaPosition: Position): List<Defender> =
+    defenders.filter { defender ->
+        defender.type != de.egril.defender.model.DefenderType.BALLISTA_TOWER &&
+            defender.type.attackType != AttackType.NONE &&
+            freyaPosition.hexDistanceTo(defender.position.value) in defender.type.minRange..defender.range
+    }
+
+private fun GameState.blockedThreatDamage(
+    freyaPosition: Position,
+    frontDirection: Int,
+): Int =
+    shieldThreats(freyaPosition)
+        .filter { isInShieldFrontArc(freyaPosition, it.position.value, frontDirection) }
+        .sumOf { it.previewAttackDamage() }
+
+private fun GameState.movementFrontDirection(
     freya: Attacker,
     pathfinding: PathfindingSystem,
 ): Int? {
