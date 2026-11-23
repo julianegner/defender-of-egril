@@ -1205,6 +1205,11 @@
     <string name="level_the_tower_of_the_hermit_title">La Tour de l\'Ermite</string>
     <string name="level_the_tower_of_the_hermit_subtitle">Une seule Tour pour défendre le Chemin</string>
     <string name="level_the_witches_title">Les Sorcières</string>
+    <string name="level_flotsam_city_title">Cité des Épaves</string>
+    <string name="level_the_town_at_the_river_title">La Ville sur la Rivière</string>
+    <string name="level_the_witches_swamp_title">Le Marais des Sorcières</string>
+    <string name="level_hold_the_gate_title">Tenez la porte</string>
+    <string name="level_hold_the_gate_subtitle">Le Waaagh! arrive</string>
     <string name="level_gribnaks_ambush_title">L\'embuscade de Gribnak</string>
     <string name="level_gribnaks_ambush_subtitle">Un scélérat mène la horde</string>
     <!-- Map Names -->
@@ -1218,6 +1223,11 @@
     <string name="map_fast_and_furious_name">Carte Rapide et Furieux</string>
     <string name="map_the_cross_name">La Croix</string>
     <string name="map_winding_path_name">Le Chemin Sinueux</string>
+    <string name="map_demo_name">Démo</string>
+    <string name="map_flotsam_city_name">Cité des Épaves</string>
+    <string name="map_the_swamp_name">Le Marais</string>
+    <string name="map_the_town_at_the_river_name">La Ville sur la Rivière</string>
+    <string name="map_the_watch_gate_name">La Porte de Garde</string>
     <string name="map_the_fortress_name">La Forteresse</string>
     <string name="map_ewhads_challenge_name">Défi d\'Ewhad</string>
     <string name="map_the_creek_name">Le Ruisseau</string>

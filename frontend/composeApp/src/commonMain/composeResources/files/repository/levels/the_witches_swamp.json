@@ -8,6 +8,7 @@
   "id": "the_witches_swamp",
   "mapId": "map_the_swamp",
   "title": "The Witches Swamp",
+  "titleKey": "level_the_witches_swamp_title",
   "subtitle": "",
   "startCoins": 200,
   "startHealthPoints": 20,

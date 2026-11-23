@@ -6,6 +6,7 @@
   "data": {
   "id": "map_demo",
   "name": "Demo",
+  "nameKey": "map_demo_name",
   "width": 53,
   "height": 33,
   "readyToUse": true,

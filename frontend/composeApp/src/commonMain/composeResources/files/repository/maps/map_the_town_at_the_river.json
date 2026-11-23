@@ -6,6 +6,7 @@
   "data": {
   "id": "map_the_town_at_the_river",
   "name": "The Town at the River",
+  "nameKey": "map_the_town_at_the_river_name",
   "width": 80,
   "height": 80,
   "readyToUse": true,

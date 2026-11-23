@@ -7,6 +7,7 @@
   "id": "the_town_at_the_river",
   "mapId": "map_the_town_at_the_river",
   "title": "The Town at the River",
+  "titleKey": "level_the_town_at_the_river_title",
   "subtitle": "",
   "startCoins": 100,
   "startHealthPoints": 10,

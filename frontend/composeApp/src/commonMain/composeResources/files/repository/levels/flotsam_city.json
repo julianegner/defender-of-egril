@@ -7,6 +7,7 @@
   "id": "flotsam_city",
   "mapId": "map_flotsam_city",
   "title": "Flotsam City",
+  "titleKey": "level_flotsam_city_title",
   "subtitle": "",
   "startCoins": 200,
   "startHealthPoints": 10,

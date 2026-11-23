@@ -7,6 +7,7 @@
   "data": {
   "id": "map_the_swamp",
   "name": "The Swamp",
+  "nameKey": "map_the_swamp_name",
   "width": 80,
   "height": 50,
   "readyToUse": true,

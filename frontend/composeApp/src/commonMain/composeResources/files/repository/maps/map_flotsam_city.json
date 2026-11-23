@@ -6,6 +6,7 @@
   "data": {
   "id": "map_flotsam_city",
   "name": "Flotsam City",
+  "nameKey": "map_flotsam_city_name",
   "width": 80,
   "height": 80,
   "readyToUse": true,
