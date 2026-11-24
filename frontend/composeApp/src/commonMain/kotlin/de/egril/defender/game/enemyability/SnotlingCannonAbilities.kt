@@ -21,6 +21,9 @@ internal class SnotlingCannonAbilities(
         const val SNOTLING_CANNON_MAX_CASUALTY_PERCENT = 20
     }
 
+    private fun hasStandingBarricade(position: Position): Boolean =
+        state.barricades.any { it.position == position && !it.isDestroyed() }
+
     fun handleSnotlingCannon(snotling: Attacker) {
         val startPosition = state.enemyTurnStartPositions[snotling.id] ?: return
         if (startPosition == snotling.position.value) return
@@ -79,6 +82,8 @@ internal class SnotlingCannonAbilities(
         val path = pathfinding.findPath(currentPosition, currentTarget, snotling, ignoreBarricades = true)
         val landingTile = path.getOrNull(SNOTLING_CANNON_THROW_DISTANCE) ?: return null
         if (!state.level.isOnPath(landingTile)) return null
+        // The cannon may fly over barricades (ignoreBarricades above), but snotlings never land on them
+        if (hasStandingBarricade(landingTile)) return null
         if (
             state.attackers.any {
                 !it.isDefeated.value &&

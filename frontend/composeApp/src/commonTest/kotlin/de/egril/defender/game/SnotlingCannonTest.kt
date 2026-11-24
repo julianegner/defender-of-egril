@@ -3,6 +3,7 @@ package de.egril.defender.game
 import androidx.compose.runtime.mutableStateOf
 import de.egril.defender.model.Attacker
 import de.egril.defender.model.AttackerType
+import de.egril.defender.model.Barricade
 import de.egril.defender.model.GameState
 import de.egril.defender.model.Level
 import de.egril.defender.model.Position
@@ -135,6 +136,37 @@ class SnotlingCannonTest {
 
         assertEquals(150, snotling.currentHealth.value, "Snotling should not throw when landing tile is occupied by a non-snotling")
         assertTrue(state.snotlingCannonThrowEffects.isEmpty())
+    }
+
+    @Test
+    fun snotlingCannonDoesNotLandOnBarricadeTile() {
+        val state = GameState(createStraightLevel())
+        val abilities = EnemyAbilitySystem(state, PathfindingSystem(state))
+        val snotling =
+            Attacker(
+                id = state.nextAttackerId.value++,
+                type = AttackerType.SNOTLING,
+                position = mutableStateOf(Position(2, 0)),
+                level = mutableStateOf(1),
+                currentTarget = mutableStateOf(Position(8, 0)),
+            )
+        snotling.currentHealth.value = 150
+        state.attackers.add(snotling)
+        state.barricades.add(
+            Barricade(
+                id = state.nextBarricadeId.value++,
+                position = Position(5, 0),
+                healthPoints = mutableStateOf(50),
+                defenderId = -1,
+            ),
+        )
+        state.enemyTurnStartPositions[snotling.id] = Position(1, 0)
+
+        abilities.processEnemyAbilities()
+
+        assertEquals(150, snotling.currentHealth.value, "Snotling should not throw onto a standing barricade")
+        assertTrue(state.snotlingCannonThrowEffects.isEmpty())
+        assertTrue(state.pendingSnotlingCannonArrivals.isEmpty())
     }
 
     @Test

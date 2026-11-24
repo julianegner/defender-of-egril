@@ -15,6 +15,9 @@ internal class SnotlingAbilities(
     private val maxSnotlingsPerTile: Int,
     private val maxSwarmSpawnSearchRings: Int,
 ) {
+    private fun hasStandingBarricade(position: Position): Boolean =
+        state.barricades.any { it.position == position && !it.isDestroyed() }
+
     fun processSnotlingGrowth() {
         val snotlings =
             state.attackers.filter {
@@ -127,6 +130,7 @@ internal class SnotlingAbilities(
                 source.getHexNeighbors().filter { neighbor ->
                     isWithinBounds(neighbor) &&
                         state.level.isEnemyTraversable(neighbor) &&
+                        !hasStandingBarricade(neighbor) &&
                         state.attackers.none {
                             !it.isDefeated.value &&
                                 it.position.value == neighbor &&
