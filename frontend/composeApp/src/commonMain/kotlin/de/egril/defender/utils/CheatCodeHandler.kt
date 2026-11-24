@@ -1,5 +1,7 @@
 package de.egril.defender.utils
 
+import de.egril.defender.editor.getAllLevels
+import de.egril.defender.editor.getLevel
 import de.egril.defender.model.AttackerType
 import de.egril.defender.model.DigOutcome
 import de.egril.defender.model.LevelStatus
@@ -112,12 +114,25 @@ object CheatCodeHandler {
                 val attackerType =
                     when (typeName) {
                         "goblin" -> AttackerType.GOBLIN
+                        "goblinrunner", "goblin_runner", "runner" -> AttackerType.GOBLIN_RUNNER
                         "ork", "orc" -> AttackerType.ORK
                         "ogre" -> AttackerType.OGRE
+                        "troll" -> AttackerType.TROLL
                         "skeleton" -> AttackerType.SKELETON
                         "wizard", "evil_wizard", "evilwizard" -> AttackerType.EVIL_WIZARD
+                        "runemaster", "rune_master" -> AttackerType.RUNEMASTER
                         "greenwitch" -> AttackerType.GREEN_WITCH
                         "redwitch" -> AttackerType.RED_WITCH
+                        "snotling" -> AttackerType.SNOTLING
+                        "spiderling" -> AttackerType.SPIDERLING
+                        "demonling" -> AttackerType.DEMONLING
+                        "zythar", "riftcaller", "zythar_the_riftcaller" -> AttackerType.ZYTHAR_THE_RIFTCALLER
+                        "razzik", "rocketeer", "razzik_the_rocketeer" -> AttackerType.RAZZIK_THE_ROCKETEER
+                        "roboticgoblin", "robotic_goblin", "scrapbot" -> AttackerType.ROBOTIC_GOBLIN
+                        "snotlingboss", "gribnak" -> AttackerType.SNOTLING_BOSS
+                        "araxxa", "giantspider", "giant_spider" -> AttackerType.ARAXXA
+                        "baron", "ratterzahn", "baronratterzahn", "baron_ratterzahn" -> AttackerType.BARON_RATTERZAHN
+                        "freya", "shieldmaiden", "fallenfreya", "fallen_shieldmaiden_freya" -> AttackerType.FALLEN_SHIELDMAIDEN_FREYA
                         else -> return Pair(false, null)
                     }
 

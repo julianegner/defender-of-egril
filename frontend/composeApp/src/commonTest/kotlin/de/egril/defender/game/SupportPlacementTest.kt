@@ -1,16 +1,20 @@
 package de.egril.defender.game
 
 import de.egril.defender.model.DefenderType
+import de.egril.defender.model.FiefType
 import de.egril.defender.model.GameState
 import de.egril.defender.model.INDEFINITE_SUPPORT_COUNT
 import de.egril.defender.model.Level
 import de.egril.defender.model.LevelSupports
 import de.egril.defender.model.Position
+import de.egril.defender.model.RiverFlow
+import de.egril.defender.model.RiverTile
 import de.egril.defender.model.SpellType
 import de.egril.defender.model.SupportObject
 import de.egril.defender.model.SupportObjectType
 import de.egril.defender.model.SupportSpell
 import de.egril.defender.model.TrapType
+import de.egril.defender.model.getHexNeighbors
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -20,7 +24,11 @@ import kotlin.test.assertTrue
  * Tests for player-usable level supports (placable objects + spell tokens).
  */
 class SupportPlacementTest {
-    private fun createLevel(supports: LevelSupports): Level =
+    private fun createLevel(
+        supports: LevelSupports,
+        extraPathCells: Set<Position> = emptySet(),
+        riverTiles: Map<Position, RiverTile> = emptyMap(),
+    ): Level =
         Level(
             id = 1,
             name = "Test Level",
@@ -29,13 +37,14 @@ class SupportPlacementTest {
             gridHeight = 10,
             startPositions = listOf(Position(0, 0)),
             targetPositions = listOf(Position(5, 0)),
-            pathCells = setOf(Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0), Position(4, 0), Position(5, 0)),
+            pathCells = setOf(Position(0, 0), Position(1, 0), Position(2, 0), Position(3, 0), Position(4, 0), Position(5, 0)) + extraPathCells,
             buildAreas = setOf(Position(2, 2), Position(3, 2)),
             attackerWaves = emptyList(),
             initialCoins = 100,
             healthPoints = 10,
             availableTowers = setOf(DefenderType.SPIKE_TOWER),
             supports = supports,
+            riverTiles = riverTiles,
         )
 
     @Test
@@ -113,5 +122,136 @@ class SupportPlacementTest {
         assertEquals(Position(4, 0), barricade.position)
         assertEquals(80, barricade.healthPoints.value)
         assertEquals(-1, barricade.defenderId, "Support-placed barricades use defenderId -1")
+    }
+
+    @Test
+    fun testPlaceSupportFisherRejectedWithoutAdjacentWater() {
+        val fisherPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    extraPathCells = setOf(fisherPosition),
+                ),
+            )
+        val engine = GameEngine(gameState)
+
+        val placed = engine.placeSupportFief(fisherPosition, FiefType.FISHER)
+
+        assertFalse(placed, "Fisher support fief must have at least one adjacent water tile")
+        assertTrue(gameState.fiefs.isEmpty())
+    }
+
+    @Test
+    fun testPlaceSupportFisherAcceptedWithAdjacentWater() {
+        val fisherPosition = Position(3, 2)
+        val waterNeighbor =
+            fisherPosition
+                .getHexNeighbors()
+                .first { it.x in 0 until 10 && it.y in 0 until 10 }
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    extraPathCells = setOf(fisherPosition),
+                    riverTiles =
+                        mapOf(
+                            waterNeighbor to RiverTile(position = waterNeighbor, flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                        ),
+                ),
+            )
+        val engine = GameEngine(gameState)
+
+        val placed = engine.placeSupportFief(fisherPosition, FiefType.FISHER)
+
+        assertTrue(placed, "Fisher support fief should be placeable next to water")
+        assertEquals(1, gameState.fiefs.size)
+        assertEquals(fisherPosition, gameState.fiefs.single().position)
+        assertEquals(FiefType.FISHER, gameState.fiefs.single().type)
+    }
+
+    @Test
+    fun testPlaceSupportFisherBoatAcceptedOnRiverTile() {
+        val boatPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    riverTiles =
+                        mapOf(
+                            boatPosition to RiverTile(position = boatPosition, flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                        ),
+                ),
+            )
+        val engine = GameEngine(gameState)
+
+        val placed = engine.placeSupportFief(boatPosition, FiefType.FISHER_BOAT)
+
+        assertTrue(placed, "Fisher boat should be placeable on a river tile")
+        assertEquals(FiefType.FISHER_BOAT, gameState.fiefs.single().type)
+    }
+
+    @Test
+    fun testPlaceSupportFisherBoatRejectedOnPathTile() {
+        val boatPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    extraPathCells = setOf(boatPosition),
+                ),
+            )
+        val engine = GameEngine(gameState)
+
+        val placed = engine.placeSupportFief(boatPosition, FiefType.FISHER_BOAT)
+
+        assertFalse(placed, "Fisher boat should not be placeable on land")
+        assertTrue(gameState.fiefs.isEmpty())
+    }
+
+    @Test
+    fun testFisherBoatDestroyedByDestroyFiefAt() {
+        val boatPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    riverTiles =
+                        mapOf(
+                            boatPosition to RiverTile(position = boatPosition, flowDirection = RiverFlow.EAST, flowSpeed = 1),
+                        ),
+                ),
+            )
+        GameEngine(gameState).placeSupportFief(boatPosition, FiefType.FISHER_BOAT)
+
+        SupportLogic(gameState).destroyFiefAt(boatPosition)
+
+        assertTrue(gameState.fiefs.isEmpty(), "Enemy contact should destroy the fisher boat")
+    }
+
+    @Test
+    fun testFisherBoatYieldsMoreIncomeThanFisher() {
+        assertTrue(FiefType.FISHER_BOAT.incomePerTurn > FiefType.FISHER.incomePerTurn)
+    }
+
+    @Test
+    fun testPlaceSupportFisherBoatRejectedOnMaelstrom() {
+        val maelstromPosition = Position(3, 2)
+        val gameState =
+            GameState(
+                createLevel(
+                    supports = LevelSupports(),
+                    riverTiles =
+                        mapOf(
+                            maelstromPosition to
+                                RiverTile(position = maelstromPosition, flowDirection = RiverFlow.MAELSTROM, flowSpeed = 1),
+                        ),
+                ),
+            )
+
+        val placed = GameEngine(gameState).placeSupportFief(maelstromPosition, FiefType.FISHER_BOAT)
+
+        assertFalse(placed, "Fisher boat should not be placeable on a maelstrom")
+        assertTrue(gameState.fiefs.isEmpty())
     }
 }

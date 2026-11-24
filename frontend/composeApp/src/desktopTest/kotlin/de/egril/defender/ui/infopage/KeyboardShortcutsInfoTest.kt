@@ -7,6 +7,9 @@ import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.ScreenshotTestUtils
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.resetToDefaults
+import de.egril.defender.ui.settings.saveShortcutCenterNextSpawnPoint
+import de.egril.defender.ui.settings.saveShortcutCenterSelectedTower
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals

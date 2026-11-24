@@ -11,6 +11,7 @@ import com.hyperether.resources.AppLocale
 import com.hyperether.resources.currentLanguage
 import de.egril.defender.ui.infopage.NewVersionInfo
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.resetToDefaults
 import org.junit.Rule
 import org.junit.Test
 import kotlin.test.assertEquals

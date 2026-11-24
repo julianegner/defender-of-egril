@@ -135,12 +135,33 @@ class IosFileStorage : FileStorage {
         if (!fileManager.fileExistsAtPath(sourceDirPath)) {
             return false
         }
+        // Never overwrite an existing target; only a partial copy made by this call may be removed.
+        if (fileManager.fileExistsAtPath(targetDirPath)) {
+            return false
+        }
 
-        return fileManager.copyItemAtPath(sourceDirPath, toPath = targetDirPath, error = null)
+        val copied = fileManager.copyItemAtPath(sourceDirPath, toPath = targetDirPath, error = null)
+        if (!copied || entryNames(sourceDirPath) != entryNames(targetDirPath)) {
+            println("Copy verification failed for $sourcePath to $targetPath; removing partial copy")
+            fileManager.removeItemAtPath(targetDirPath, error = null)
+            return false
+        }
+        return true
     }
+
+    /** Relative paths of all entries below [dirPath], used to verify that a copy is complete. */
+    @OptIn(ExperimentalForeignApi::class)
+    private fun entryNames(dirPath: String): Set<String> =
+        (fileManager.subpathsOfDirectoryAtPath(dirPath, error = null) ?: emptyList<Any?>())
+            .map { it.toString() }
+            .toSet()
 
     @OptIn(ExperimentalForeignApi::class)
     override fun deleteDirectory(path: String): Boolean {
+        if (FileStorageSafety.isProtectedDirectory(path)) {
+            println("Refusing to delete protected directory: $path")
+            return false
+        }
         val dirPath = "$baseDir/$path"
 
         if (!fileManager.fileExistsAtPath(dirPath)) {

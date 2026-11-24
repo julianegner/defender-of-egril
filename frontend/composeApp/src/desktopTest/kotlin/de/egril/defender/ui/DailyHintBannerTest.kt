@@ -7,6 +7,7 @@ import de.egril.defender.iam.IamState
 import de.egril.defender.model.LevelStatus
 import de.egril.defender.model.WorldLevel
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.markDailyHintShown
 import de.egril.defender.ui.worldmap.WorldMapScreen
 import org.junit.Before
 import org.junit.Rule

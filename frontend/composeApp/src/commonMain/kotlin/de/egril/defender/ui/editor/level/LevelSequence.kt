@@ -31,7 +31,14 @@ import com.hyperether.resources.stringResource
 import de.egril.defender.editor.EditorLevel
 import de.egril.defender.editor.EditorStorage
 import de.egril.defender.editor.PrerequisiteValidationResult
+import de.egril.defender.editor.getAllLevels
+import de.egril.defender.editor.getLevelReadinessIssues
+import de.egril.defender.editor.getLevelSequence
+import de.egril.defender.editor.saveLevel
+import de.egril.defender.editor.updateLevelSequence
+import de.egril.defender.editor.validateAllPrerequisites
 import de.egril.defender.ui.LevelSequenceScrollbar
+import de.egril.defender.ui.editor.localizedText
 import de.egril.defender.ui.icon.CheckmarkIcon
 import de.egril.defender.ui.icon.WarningIcon
 import defender_of_egril.composeapp.generated.resources.*
@@ -538,7 +545,11 @@ fun LevelTreeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val isReady = EditorStorage.isLevelReadyToPlay(level)
+    val readinessIssues = EditorStorage.getLevelReadinessIssues(level)
+    val isReady = readinessIssues.isEmpty()
+    val spawnEntries = remember(level.enemySpawns, level.spawnGroups) { level.configuredSpawnEntries() }
+    val villainTypes = remember(spawnEntries) { spawnEntries.presentVillainTypes() }
+    val villainSummary = remember(spawnEntries) { spawnEntries.presentVillainSummary { it.villainName ?: it.displayName } }
 
     Card(
         modifier = modifier.clickable { onClick() },
@@ -558,7 +569,11 @@ fun LevelTreeCard(
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
-                modifier = Modifier.padding(8.dp).fillMaxSize(),
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .fillMaxSize()
+                        .then(if (isReady) Modifier else Modifier.verticalScroll(rememberScrollState())),
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 // Title with ready indicator
@@ -591,9 +606,16 @@ fun LevelTreeCard(
 
                 // Stats
                 Text(
-                    text = "${stringResource(Res.string.enemies)}: ${level.enemySpawns.size}",
+                    text = "${stringResource(Res.string.enemies)}: ${level.configuredSpawnCount()}",
                     style = MaterialTheme.typography.bodySmall,
                 )
+                if (villainSummary.isNotEmpty()) {
+                    Text(
+                        text = "${stringResource(if (villainTypes.size > 1) Res.string.villains else Res.string.villain)}: $villainSummary",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Red,
+                    )
+                }
                 Text(
                     text = "${level.startCoins} coins | ${level.startHealthPoints} HP",
                     style = MaterialTheme.typography.bodySmall,
@@ -619,6 +641,17 @@ fun LevelTreeCard(
                         style = MaterialTheme.typography.bodySmall,
                         color = Color(0xFF4CAF50),
                     )
+                }
+
+                // Reasons why the level is not ready, always visible for not-ready levels
+                if (!isReady) {
+                    readinessIssues.forEach { issue ->
+                        Text(
+                            text = "• ${issue.localizedText()}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.Red,
+                        )
+                    }
                 }
             }
 

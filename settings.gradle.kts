@@ -27,5 +27,8 @@ project(":assetPack").projectDir = File("frontend/assetPack")
 include(":png-encoder")
 project(":png-encoder").projectDir = File("shared/png-encoder")
 
+include(":mapgen")
+project(":mapgen").projectDir = File("shared/mapgen")
+
 include(":server")
 project(":server").projectDir = File("servers/backend")

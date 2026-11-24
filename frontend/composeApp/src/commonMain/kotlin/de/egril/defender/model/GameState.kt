@@ -1,6 +1,7 @@
 package de.egril.defender.model
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -8,175 +9,17 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import de.egril.defender.ui.settings.DifficultyLevel
 
-enum class GamePhase {
-    INITIAL_BUILDING, // Initial building phase - towers build instantly
-    PLAYER_TURN, // Player can place/upgrade towers and attack
-    ENEMY_TURN, // Enemies move
-}
-
-enum class FieldEffectType {
-    FIREBALL, // Visual effect for wizard fireball area
-    ACID, // Visual effect for alchemy acid with duration
-}
-
-enum class HealingEffectType {
-    GREEN_WITCH, // Visual effect for green witch healing
-}
-
-/**
- * Spell targeting mode state
- */
-data class SpellTargetingState(
-    val activeSpell: SpellType,
-    val validTargets: Set<Any> = emptySet(), // Can be Position, Attacker, or Defender depending on spell type
-)
-
-data class FieldEffect(
-    val position: Position,
-    val type: FieldEffectType,
-    val damage: Int,
-    var turnsRemaining: Int,
-    val defenderId: Int, // Track which tower created this effect
-    val attackerId: Int? = null, // For DOT effects, track which enemy has the effect
-)
-
-data class HealingEffect(
-    val position: Position,
-    val type: HealingEffectType,
-    val healAmount: Int,
-    val turnNumber: Int, // Track which turn this healing occurred for display timing
-)
-
-data class DamageEffect(
-    val position: Position,
-    val damageAmount: Int,
-    val turnNumber: Int, // Track which turn this damage occurred for display timing
-)
-
-data class BombExplosionEffect(
-    val center: Position, // Center of the explosion
-    val affectedPositions: List<Position>, // All affected tile positions
-    val turnNumber: Int, // Turn when this explosion occurred
-)
-
-data class EnemyDeathEffect(
-    val position: Position, // Position where the enemy was defeated
-    val turnNumber: Int, // Turn when this defeat occurred
-    val attackerType: AttackerType, // Type of the defeated enemy (for ghost rendering during animation)
-    val attackerLevel: Int, // Level of the defeated enemy (for level badge during animation)
-)
-
-data class CoinGainEffect(
-    val position: Position, // Position of the defeated enemy that awarded coins
-    val amount: Int, // Amount of coins gained
-    val turnNumber: Int, // Turn when this coin gain occurred
-)
-
-data class TowerAttackEffect(
-    val targetPosition: Position, // Position of the attacked tile
-    val turnNumber: Int, // Turn when this attack occurred
-)
-
-data class TowerConstructionEffect(
-    val position: Position, // Position of the tower that finished building
-    val turnNumber: Int, // Turn when construction completed
-)
-
-data class EnemySpawnEffect(
-    val position: Position, // Spawn position of the newly appeared enemy
-    val turnNumber: Int, // Turn when this spawn occurred
-)
-
-data class TrapTriggerEffect(
-    val position: Position, // Position of the trap that was triggered
-    val turnNumber: Int, // Turn when this trap triggered
-)
-
-data class EnemyMoveEffect(
-    val position: Position, // Tile that the enemy just vacated (movement trail)
-    val turnNumber: Int, // Turn when this movement occurred
-)
-
-data class DragonLevelChangeEffect(
-    val position: Position, // Dragon's position when its level changed
-    val isLevelUp: Boolean, // true = dragon gained levels (ate units), false = lost levels (took damage)
-    val turnNumber: Int, // Turn when this change occurred
-)
-
-data class MineDigEffect(
-    val position: Position, // Position of the mine that was dug
-    val turnNumber: Int, // Turn when digging occurred
-)
-
-data class ArrowAttackEffect(
-    val sourcePosition: Position, // Tower's tile (source of the arrow)
-    val targetPosition: Position, // Target tile
-    val turnNumber: Int, // Turn when this attack occurred
-)
-
-data class BallistaAttackEffect(
-    val sourcePosition: Position, // Ballista tower's tile
-    val targetPosition: Position, // Target tile
-    val turnNumber: Int, // Turn when this attack occurred
-)
-
-data class BowAttackEffect(
-    val sourcePosition: Position, // Bow tower's tile
-    val targetPosition: Position, // Target tile
-    val turnNumber: Int, // Turn when this attack occurred
-)
-
-data class SpearAttackEffect(
-    val sourcePosition: Position, // Spear tower's tile
-    val targetPosition: Position, // Target tile
-    val turnNumber: Int, // Turn when this attack occurred
-)
-
-data class PikeAttackEffect(
-    val sourcePosition: Position, // Pike (spike) tower's tile
-    val targetPosition: Position, // Target tile
-    val turnNumber: Int, // Turn when this attack occurred
-)
-
-data class WizardAttackEffect(
-    val sourcePosition: Position, // Wizard tower's tile
-    val targetPosition: Position, // Target tile
-    val turnNumber: Int, // Turn when this attack occurred
-)
-
-data class AlchemyAttackEffect(
-    val sourcePosition: Position, // Alchemy tower's tile
-    val targetPosition: Position, // Target tile
-    val turnNumber: Int, // Turn when this attack occurred
-)
-
-/**
- * Types of in-game event messages that are shown to the player.
- */
-enum class GameMessageType {
-    TARGET_TAKEN, // A SINGLE_HIT target was captured by an enemy
-    GATE_DESTROYED, // A named gate barricade was destroyed
-    EWHAD_ENTERS, // Ewhad has entered the battlefield
-    EWHAD_RETREATS, // Ewhad has retreated (health reached 0, not final stand)
-    EWHAD_DEFEATED, // Ewhad is defeated (health reached 0, final stand level)
-    STORY_INTRO, // Story narrative shown at the start of a level (name = editorLevelId)
-    EVENT_MESSAGE, // Scripted-event story message (name = string-resource key of the predefined text)
-}
-
-/**
- * An in-game event message queued for display to the player.
- * @param type          The kind of event.
- * @param name          Optional name (target name or gate name); for [GameMessageType.EVENT_MESSAGE]
- *                      it is the optional string-resource key of the predefined text (may be null).
- * @param eventActions  For [GameMessageType.EVENT_MESSAGE]: the actions the event applied, so the
- *                      granted elements (coins, mana, supports, …) can be shown to the player.
- */
-data class GameMessage(
-    val type: GameMessageType,
-    val name: String? = null,
-    val eventActions: List<EventAction>? = null,
-)
-
+// Marked @Stable so Compose trusts referential/structural equality on this class instead of
+// treating it as unstable (which the `var level` property would otherwise force). GameState is
+// mutated exclusively through its Compose-observable fields (MutableState/SnapshotStateList); the
+// `level` property is set once at construction and never reassigned during gameplay, so this
+// annotation does not violate the @Stable contract in practice.
+//
+// Without this, every composable that takes a GameState parameter (e.g. GridCell, called once per
+// map tile) can never be skipped by Compose's recomposition optimizer, forcing a full recompute of
+// every visible tile on every single state change (attacker move, effect update, etc.) — this can
+// become a severe performance problem on large, mostly-open maps (e.g. Flotsam City's 80x80 grid).
+@Stable
 data class GameState(
     var level: Level,
     val phase: MutableState<GamePhase> = mutableStateOf(GamePhase.INITIAL_BUILDING),
@@ -186,19 +29,34 @@ data class GameState(
     val attackers: SnapshotStateList<Attacker> = mutableStateListOf(),
     val nextDefenderId: MutableState<Int> = mutableStateOf(1),
     val nextAttackerId: MutableState<Int> = mutableStateOf(1),
+    val nextGargoyleId: MutableState<Int> = mutableStateOf(1),
     val nextRaftId: MutableState<Int> = mutableStateOf(1),
     val nextBarricadeId: MutableState<Int> = mutableStateOf(1),
+    val nextBridgeId: MutableState<Int> = mutableStateOf(1),
+    val nextPortalId: MutableState<Int> = mutableStateOf(1),
     val currentWaveIndex: MutableState<Int> = mutableStateOf(0),
     val spawnCounter: MutableState<Int> = mutableStateOf(0),
     val attackersToSpawn: SnapshotStateList<AttackerType> = mutableStateListOf(),
+    val enemyTurnStartPositions: SnapshotStateMap<Int, Position> = mutableStateMapOf(), // Snapshot of enemy positions at start of enemy turn
     val turnNumber: MutableState<Int> = mutableStateOf(0),
     val actionsRemainingThisTurn: MutableState<Int> = mutableStateOf(0),
     val spawnPlan: List<PlannedEnemySpawn> = level.directSpawnPlan ?: generateSpawnPlan(level.attackerWaves),
+    // Spawn loops (issue #694). When [spawnGroups] is non-null it drives spawning instead of
+    // [spawnPlan]; [spawnGroupCursor] tracks the active group/iteration and [spawnGroupBindings]
+    // maps a group's logical unit ids to the actual spawned attacker ids (for UNIT_ALIVE loops).
+    val spawnGroups: List<SpawnSequenceEntry>? = level.spawnGroups,
+    val spawnGroupCursor: MutableState<SpawnGroupCursor> = mutableStateOf(SpawnGroupCursor()),
+    val spawnGroupBindings: SnapshotStateMap<String, Int> = mutableStateMapOf(),
+    // Spawn loops ended by a STOP_SPAWN_LOOP event action; they are skipped and never repeat again.
+    val stoppedSpawnLoops: SnapshotStateList<String> = mutableStateListOf(),
     val fieldEffects: SnapshotStateList<FieldEffect> = mutableStateListOf(), // Track active field effects
     val healingEffects: SnapshotStateList<HealingEffect> = mutableStateListOf(), // Track active healing effects
     val damageEffects: SnapshotStateList<DamageEffect> = mutableStateListOf(), // Track barricade damage effects
     val traps: SnapshotStateList<Trap> = mutableStateListOf(), // Track active traps
     val barricades: SnapshotStateList<Barricade> = mutableStateListOf(), // Track active barricades
+    val fiefs: SnapshotStateList<Fief> = mutableStateListOf(), // Track active fiefs (income-generating path objects)
+    val mushrooms: SnapshotStateList<Mushroom> = mutableStateListOf(), // Track active mushrooms
+    val gargoyles: SnapshotStateList<Gargoyle> = mutableStateListOf(), // Pre-placed guardians (inactive or active)
     val bridges: SnapshotStateList<Bridge> = mutableStateListOf(), // Track active bridges
     val rafts: SnapshotStateList<Raft> = mutableStateListOf(), // Track active rafts (towers on rivers)
     val bombExplosionEffects: SnapshotStateList<BombExplosionEffect> = mutableStateListOf(), // Track bomb explosion visual effects
@@ -209,6 +67,8 @@ data class GameState(
     val attackTriggerCount: MutableState<Int> = mutableStateOf(0), // Monotonically-increasing counter, incremented on every attack (bypasses per-tile deduplication)
     val constructionCompleteEffects: SnapshotStateList<TowerConstructionEffect> = mutableStateListOf(), // Track tower construction complete visual effects
     val enemySpawnEffects: SnapshotStateList<EnemySpawnEffect> = mutableStateListOf(), // Track enemy spawn portal visual effects
+    val scrapPiles: SnapshotStateList<ScrapPile> = mutableStateListOf(), // Scrap-Bot wreckage markers waiting to hatch
+    val activePortals: SnapshotStateList<Portal> = mutableStateListOf(), // Rift portals created by Zythar's demonlings
     val trapTriggerEffects: SnapshotStateList<TrapTriggerEffect> = mutableStateListOf(), // Track trap trigger visual effects
     val enemyMoveEffects: SnapshotStateList<EnemyMoveEffect> = mutableStateListOf(), // Track enemy movement trail visual effects
     val dragonLevelChangeEffects: SnapshotStateList<DragonLevelChangeEffect> = mutableStateListOf(), // Track dragon level change visual effects
@@ -220,6 +80,11 @@ data class GameState(
     val pikeAttackEffects: SnapshotStateList<PikeAttackEffect> = mutableStateListOf(), // Track pike extend overlay effects
     val wizardAttackEffects: SnapshotStateList<WizardAttackEffect> = mutableStateListOf(), // Track wizard fireball overlay effects
     val alchemyAttackEffects: SnapshotStateList<AlchemyAttackEffect> = mutableStateListOf(), // Track alchemy acid vial overlay effects
+    val rocketAttackEffects: SnapshotStateList<RocketAttackEffect> = mutableStateListOf(), // Track Baron rocket projectile overlay effects
+    val snotlingCannonThrowEffects: SnapshotStateList<SnotlingCannonThrowEffect> = mutableStateListOf(), // Track Snotling cannon throw projectile effects
+    val garokkWarCryEffects: SnapshotStateList<GarokkWarCryEffect> = mutableStateListOf(), // Track Garokk's war cry pulse effect
+    val shadowSpewEffects: SnapshotStateList<ShadowSpewEffect> = mutableStateListOf(), // Track Xarithon shadow spew flying fireball effects
+    val morvathShadowOrbEffects: SnapshotStateList<MorvathShadowOrbEffect> = mutableStateListOf(), // Track Morvath's shadow orb flying to distant fog tile
     val difficulty: DifficultyLevel = DifficultyLevel.MEDIUM, // Track difficulty for this game session
     val tutorialState: MutableState<TutorialState> =
         mutableStateOf(
@@ -236,17 +101,32 @@ data class GameState(
     val xpEarnedThisLevel: MutableState<Int> = mutableStateOf(0), // XP earned during this level (awarded on completion; 20% on loss)
     val currentMana: MutableState<Int> = mutableStateOf(0), // Current mana (for spellcasting)
     val maxMana: MutableState<Int> = mutableStateOf(0), // Maximum mana (based on player stats)
+    val runes: MutableState<Int> = mutableStateOf(0), // Runes recovered from defeated Runemasters
+    val scriptedVictory: MutableState<Boolean> = mutableStateOf(false),
     val activeSpellEffects: SnapshotStateList<ActiveSpellEffect> = mutableStateListOf(), // Active spell effects
     val incomeMultiplier: Double = 1.0, // Income multiplier from player stats (default 1.0, e.g. 1.2 for 20% bonus)
     val constructionLevel: Int = 0, // Construction level from player stats (0-3+, gates tower abilities)
     val spellTargeting: MutableState<SpellTargetingState?> = mutableStateOf(null), // Active spell targeting state (null when not targeting)
     val instantTowerSpellActive: MutableState<Boolean> = mutableStateOf(false), // True when Instant Tower spell is active (waiting for next tower placement)
+    // Villains: set to true when any villain reaches a target. A villain breaching a target loses the
+    // level immediately, regardless of remaining health points (see issue #538).
+    val villainReachedTarget: MutableState<Boolean> = mutableStateOf(false),
     // SINGLE_HIT target tracking
     val takenTargets: SnapshotStateList<Position> = mutableStateListOf(), // Positions of taken SINGLE_HIT targets
     val pendingMessages: SnapshotStateList<GameMessage> = mutableStateListOf(), // Messages queued for display
-    // Player-usable supports remaining this level (placable objects + spell tokens)
+    val storyLog: SnapshotStateList<StoryLogEntry> = mutableStateListOf(), // Messages already shown, oldest first
+    val waaghPoints: MutableState<Int> = mutableStateOf(0), // Current Waaagh! meter (0-100)
+    val waaghFrenzyActive: MutableState<Boolean> = mutableStateOf(false), // True while Waaagh! frenzy is active
+    val waaghFrenzyRoundsLeft: MutableState<Int> = mutableStateOf(0), // Enemy turns remaining in the current frenzy
+    val hasShownWaaghFrenzyMessage: MutableState<Boolean> = mutableStateOf(false), // True once the frenzy intro narrative was shown
+    val pendingSoulCalls: SnapshotStateList<PendingSoulCall> = mutableStateListOf(), // Valerius resurrection queue for the next round
+    val pendingBargeDeletions: SnapshotStateList<PendingBargeDeletion> = mutableStateListOf(), // Barges (rafts + defenders) to be deleted after animation completes
+    val pendingSnotlingCannonArrivals: SnapshotStateList<PendingSnotlingCannonArrival> = mutableStateListOf(), // Snotlings arriving at their landing tile after the cannonball animation completes
+    val pendingBridgeDamage: SnapshotStateList<PendingBridgeDamage> = mutableStateListOf(), // Bridge HP reductions deferred until tower attack visuals finish
+    // Player-usable supports remaining this level (placable objects + spell tokens + fief tokens)
     val supportObjectsRemaining: SnapshotStateMap<SupportObjectType, Int> = mutableStateMapOf(),
     val supportSpellsRemaining: SnapshotStateMap<SpellType, Int> = mutableStateMapOf(),
+    val supportFiefRemaining: SnapshotStateMap<FiefType, Int> = mutableStateMapOf(),
     // Cooldown-based support powers: turns remaining until the power can be used again (0 = ready)
     val cooldownPowerReadyIn: SnapshotStateMap<CooldownPowerType, Int> = mutableStateMapOf(),
     // True when the Coin Surge power is active this turn (doubles coins earned)
@@ -254,6 +134,10 @@ data class GameState(
     // Monotonically-increasing counter, incremented each time the "Sky is Falling" power is used,
     // to trigger the full-map falling-meteor animation overlay.
     val skyIsFallingTrigger: MutableState<Int> = mutableStateOf(0),
+    // Tile-scoped one-shot animations that have already been shown for the current save state.
+    // Prevents replay when a tile is temporarily removed from composition (e.g. viewport culling)
+    // and later composed again while the same visual effect is still present.
+    val playedTileAnimationKeys: SnapshotStateMap<String, Boolean> = mutableStateMapOf(),
     // Scripted level event tracking
     val enemiesKilledTotal: MutableState<Int> = mutableStateOf(0), // Total enemies killed (by combat/traps, not those reaching the target)
     val enemiesKilledByType: SnapshotStateMap<AttackerType, Int> = mutableStateMapOf(), // Kills per enemy type
@@ -266,15 +150,43 @@ data class GameState(
     // Sandbox: flow direction/speed chosen for river tiles painted at runtime, so the chosen
     // water direction survives save/load. Only populated for positions painted as RIVER.
     val sandboxPaintedRiverTiles: SnapshotStateMap<Position, RiverTile> = mutableStateMapOf(),
+    // Tile zones (see [TileZone]) currently active, in activation order. Switched by scripted events.
+    val activeTileZoneIds: SnapshotStateList<String> = mutableStateListOf(),
+    // Tiles whose type currently differs from the original map because of an active tile zone
+    // (position -> current type). Used to overlay the new tile image over a pre-rendered map.
+    val zonePaintedTiles: SnapshotStateMap<Position, de.egril.defender.editor.TileType> = mutableStateMapOf(),
+    // River flow of zone-painted river tiles (only populated for positions currently RIVER due to a zone).
+    val zonePaintedRiverTiles: SnapshotStateMap<Position, RiverTile> = mutableStateMapOf(),
+    // Movable tile regions (see [TileZone.movable]) that have been moved away from their home tiles:
+    // zone id -> current positions of the region with the terrain it carries. Persisted in saves.
+    val movedTileRegions: SnapshotStateMap<String, Map<Position, RegionTile>> = mutableStateMapOf(),
+    // Rotation pivot of each moved region (zone id -> position). It moves with the region, so repeated
+    // rotations stay exact. A region without an entry uses the centre of its home tiles.
+    val movedTileRegionPivots: SnapshotStateMap<String, Position> = mutableStateMapOf(),
+    // Units that sank to the river bed when their tile was flooded (see [AttackerType.survivesSubmersion]).
+    // They are kept out of [attackers] so they can neither act nor be targeted, and do not count
+    // towards winning the level. They re-surface once their tile is dry again.
+    val submergedAttackers: SnapshotStateList<Attacker> = mutableStateListOf(),
+    // Running loops of scripted events (see [EventLoop]).
+    val activeEventLoops: SnapshotStateList<ActiveEventLoop> = mutableStateListOf(),
+    val activeEventMapImages: SnapshotStateList<EventMapImage> = mutableStateListOf(),
+    // Lines between activated altars shown by scripted events (see [AltarLink]).
+    val activeAltarLinks: SnapshotStateList<AltarLink> = mutableStateListOf(),
 ) {
+    // The original map tile type / river flow for every position, captured once from the level as
+    // it was first loaded (before any runtime edits). Absent positions are NO_PLAY.
+    private val originalTileTypes: Map<Position, de.egril.defender.editor.TileType> by lazy { buildTileTypeMap(originalLevel) }
+    private val originalRiverTiles: Map<Position, RiverTile> by lazy { originalLevel.riverTiles.toMap() }
+    internal val originalLevel: Level = level
+
     // Sandbox: the original map tile type for every position, captured once from the level as it was
     // first loaded (before any runtime edits). Used so runtime paints can be compared against the
     // original map and only genuine differences are tracked, persisted, and overlaid.
-    private val originalSandboxTileTypes: Map<Position, de.egril.defender.editor.TileType> =
+    internal val originalSandboxTileTypes: Map<Position, de.egril.defender.editor.TileType> =
         if (level.isSandbox) buildTileTypeMap(level) else emptyMap()
-    private val originalSandboxRiverTiles: Map<Position, RiverTile> =
+    internal val originalSandboxRiverTiles: Map<Position, RiverTile> =
         if (level.isSandbox) level.riverTiles.toMap() else emptyMap()
-    private val originalSandboxTargetInfoMap: Map<Position, TargetInfo> =
+    internal val originalSandboxTargetInfoMap: Map<Position, TargetInfo> =
         if (level.isSandbox) level.targetInfoMap.toMap() else emptyMap()
 
     /** Multiplier applied to earned coins while the Coin Surge power is active (2x), otherwise 1x. */
@@ -294,87 +206,59 @@ data class GameState(
         tileType: de.egril.defender.editor.TileType,
         riverFlow: RiverFlow = RiverFlow.EAST,
         riverSpeed: Int = 1,
-    ) {
-        if (!level.isSandbox) return
-        // Never repaint an occupied tile (defender/barricade/trap) to avoid orphaning game objects.
-        if (defenders.any { it.position.value == position }) return
-        if (barricades.any { it.position == position }) return
+    ) = TileMapOps.sandboxPaintTile(this, position, tileType, riverFlow, riverSpeed)
 
-        val pathCells = level.pathCells.toMutableSet()
-        val buildAreas = level.buildAreas.toMutableSet()
-        val startPositions = level.startPositions.toMutableList()
-        val targetPositions = level.targetPositions.toMutableList()
-        val riverTiles = level.riverTiles.toMutableMap()
-        val targetInfoMap = level.targetInfoMap.toMutableMap()
+    /**
+     * Replace the type of several map tiles at once with a single rebuild of the level's tile
+     * collections. Each entry maps a position to its new type and, for
+     * [de.egril.defender.editor.TileType.RIVER], the river flow to use (ignored for other types).
+     * Target tiles regain their original target metadata. Does not bump [mapEditVersion].
+     */
+    fun replaceTiles(changes: Map<Position, Pair<de.egril.defender.editor.TileType, RiverTile?>>) = TileMapOps.replaceTiles(this, changes)
 
-        // Clear the tile from every collection first so the new type fully replaces the old one.
-        pathCells.remove(position)
-        buildAreas.remove(position)
-        startPositions.remove(position)
-        targetPositions.remove(position)
-        riverTiles.remove(position)
-        targetInfoMap.remove(position)
+    /** The tile type [position] has on the original (unmodified) map. */
+    fun originalTileTypeAt(position: Position): de.egril.defender.editor.TileType = originalTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
 
-        when (tileType) {
-            de.egril.defender.editor.TileType.PATH -> pathCells.add(position)
-            de.egril.defender.editor.TileType.BUILD_AREA -> buildAreas.add(position)
-            de.egril.defender.editor.TileType.SPAWN_POINT -> if (!startPositions.contains(position)) startPositions.add(position)
-            de.egril.defender.editor.TileType.TARGET -> {
-                if (!targetPositions.contains(position)) {
-                    targetPositions.add(position)
-                }
-                originalSandboxTargetInfoMap[position]?.let { originalTargetInfo ->
-                    targetInfoMap[position] = originalTargetInfo
-                }
-            }
-            de.egril.defender.editor.TileType.RIVER ->
-                riverTiles[position] = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
-            de.egril.defender.editor.TileType.NO_PLAY -> {} // Already cleared from all collections.
+    /** The river flow [position] has on the original (unmodified) map, if it is a river tile there. */
+    fun originalRiverTileAt(position: Position): RiverTile? = originalRiverTiles[position]
+
+    /** The tile type [position] currently has (reflecting runtime edits). */
+    fun currentTileTypeAt(position: Position): de.egril.defender.editor.TileType =
+        when {
+            level.riverTiles.containsKey(position) -> de.egril.defender.editor.TileType.RIVER
+            level.startPositions.contains(position) -> de.egril.defender.editor.TileType.SPAWN_POINT
+            level.targetPositions.contains(position) -> de.egril.defender.editor.TileType.TARGET
+            level.pathCells.contains(position) -> de.egril.defender.editor.TileType.PATH
+            level.buildAreas.contains(position) -> de.egril.defender.editor.TileType.BUILD_AREA
+            else -> de.egril.defender.editor.TileType.NO_PLAY
         }
 
-        level =
-            level.copy(
-                pathCells = pathCells.toSet(),
-                buildAreas = buildAreas.toSet(),
-                startPositions = startPositions.toList(),
-                targetPositions = targetPositions.toList(),
-                riverTiles = riverTiles.toMap(),
-                targetInfoMap = targetInfoMap.toMap(),
-            )
-        // Record the repaint so the map can overlay the new tile image over the original map
-        // background — but only when it genuinely differs from the original map. Repainting a tile
-        // back to its original type removes it from the tracked differences.
-        val originalType = originalSandboxTileTypes[position] ?: de.egril.defender.editor.TileType.NO_PLAY
-        val originalRiverTile = originalSandboxRiverTiles[position]
-        val isSameAsOriginal =
-            if (tileType == de.egril.defender.editor.TileType.RIVER) {
-                originalType == de.egril.defender.editor.TileType.RIVER &&
-                    originalRiverTile != null &&
-                    originalRiverTile.flowDirection == riverFlow &&
-                    originalRiverTile.flowSpeed == riverSpeed
-            } else if (tileType == de.egril.defender.editor.TileType.TARGET) {
-                tileType == originalType && targetInfoMap[position] == originalSandboxTargetInfoMap[position]
-            } else {
-                tileType == originalType
-            }
-        if (isSameAsOriginal) {
-            sandboxPaintedTiles.remove(position)
-        } else {
-            sandboxPaintedTiles[position] = tileType
-        }
-        // Track the chosen river flow separately so it can be persisted and restored across saves.
-        if (tileType == de.egril.defender.editor.TileType.RIVER) {
-            val paintedRiverTile = RiverTile(position = position, flowDirection = riverFlow, flowSpeed = riverSpeed)
-            if (originalType == de.egril.defender.editor.TileType.RIVER && originalRiverTile == paintedRiverTile) {
-                sandboxPaintedRiverTiles.remove(position)
-            } else {
-                sandboxPaintedRiverTiles[position] = paintedRiverTile
-            }
-        } else {
-            sandboxPaintedRiverTiles.remove(position)
-        }
-        mapEditVersion.value++
-    }
+    /**
+     * The tile type a runtime edit shows on [position] instead of the original map (sandbox paint or
+     * active tile zone), or null when the tile looks like the original map.
+     */
+    fun paintedTileTypeAt(position: Position): de.egril.defender.editor.TileType? = (if (level.isSandbox) sandboxPaintedTiles[position] else null) ?: zonePaintedTiles[position]
+
+    /** River flow of a runtime-painted river tile at [position] (see [paintedTileTypeAt]). */
+    fun paintedRiverTileAt(position: Position): RiverTile? = (if (level.isSandbox) sandboxPaintedRiverTiles[position] else null) ?: zonePaintedRiverTiles[position]
+
+    /**
+     * The current tiles of the movable region [zone] with the terrain they carry. Until the region
+     * is moved these are its home tiles with their current terrain.
+     */
+    fun regionTilesOf(zone: TileZone): Map<Position, RegionTile> = TileMapOps.regionTilesOf(this, zone)
+
+    /**
+     * Recompute the tile types resulting from the currently active tile zones for [positions] and
+     * write them into the level. Later-activated zones take precedence over earlier ones; tiles not
+     * covered by any active zone return to the original map. Updates [zonePaintedTiles] /
+     * [zonePaintedRiverTiles] and bumps [mapEditVersion].
+     *
+     * @return the positions whose tile type actually changed, mapped to (old type, new type).
+     */
+    fun refreshZoneTiles(
+        positions: Collection<Position>,
+    ): Map<Position, Pair<de.egril.defender.editor.TileType, de.egril.defender.editor.TileType>> = TileMapOps.refreshZoneTiles(this, positions)
 
     /**
      * Build a position -> [de.egril.defender.editor.TileType] map for every non-blocked tile in [lvl].
@@ -390,119 +274,195 @@ data class GameState(
         return map
     }
 
-    fun isLevelWon(): Boolean {
-        // Sandbox levels can never be won, even when all enemies are gone.
-        if (level.isSandbox) return false
-        // Check if all planned spawns have occurred and all enemies are defeated
-        val allSpawned = spawnPlan.all { it.spawnTurn <= turnNumber.value }
-        return allSpawned && attackers.all { it.isDefeated.value }
+    private fun AttackerType.countsAsHordeForWaagh(): Boolean = faction == EnemyFaction.HORDE || unitSize > 0
+
+    val hasHordeUnitsInLevel: Boolean
+        get() =
+            spawnPlan.any { it.attackerType.countsAsHordeForWaagh() } ||
+                (spawnGroups?.allSpawnEntries()?.any { it.attackerType.countsAsHordeForWaagh() } ?: false) ||
+                level.getEffectiveInitialData().attackers.any { it.type.countsAsHordeForWaagh() } ||
+                attackers.any { !it.isDefeated.value && it.type.countsAsHordeForWaagh() }
+
+    fun addWaaghPoints(amount: Int) {
+        if (amount <= 0 || !level.waaghEnabled) return
+        waaghPoints.value = (waaghPoints.value + amount).coerceAtMost(100)
     }
 
-    fun isLevelLost(): Boolean {
-        if (healthPoints.value <= 0) return true
-        // Level is also lost when all SINGLE_HIT targets have been taken
-        val singleHitTargets = level.targetInfoMap.filter { it.value.type == TargetType.SINGLE_HIT }.keys
-        if (singleHitTargets.isNotEmpty() && takenTargets.containsAll(singleHitTargets)) return true
-        return false
-    }
+    fun isLevelWon(): Boolean = WinLossRules.isLevelWon(this)
+
+    fun isLevelLost(): Boolean = WinLossRules.isLevelLost(this)
 
     /**
      * Total worst-case health-point damage the player can still take, assuming every remaining
      * enemy (both those alive on the field and those still to spawn) reaches the target unhindered.
      * Uses [Long] so summoner/boss "all HP" markers ([Int.MAX_VALUE]) can be summed without overflow.
      */
-    fun getRemainingEnemyThreat(): Long {
-        var total = 0L
-        for (attacker in attackers) {
-            if (attacker.isDefeated.value) continue
-            total += attackerTargetDamage(attacker.type, attacker.level.value).toLong()
-        }
-        for (spawn in spawnPlan) {
-            if (spawn.spawnTurn > turnNumber.value) {
-                total += attackerTargetDamage(spawn.attackerType, spawn.level).toLong()
-            }
-        }
-        return total
-    }
+    fun getRemainingEnemyThreat(): Long = WinLossRules.getRemainingEnemyThreat(this)
 
     /**
      * Returns true when the level is guaranteed to be won: even if every remaining enemy reached the
-     * target, the player would still have health points left. Used to offer an instant "Win Level now".
+     * target, the player would still have health points left (or, for SINGLE_HIT-only levels, not
+     * enough remaining enemies to take all remaining targets). Used to offer an instant "Win Level now".
      *
      * Excluded cases where a win cannot be guaranteed:
      *  - Not during the player's turn (e.g. building phase or enemy turn).
-     *  - Levels with SINGLE_HIT targets, which can be lost regardless of remaining health.
      *  - When a summoner enemy remains, since it can create an unbounded number of additional units.
+     *  - When a villain remains (on the field or still to spawn), since a villain reaching a target
+     *    loses the level outright, regardless of remaining health.
+     *
+     * Levels mixing SINGLE_HIT and STANDARD targets (or with no SINGLE_HIT targets at all) fall back
+     * to the HP-based calculation, since at least one STANDARD target always remains reachable.
      */
-    fun canWinLevelNow(): Boolean {
-        // Sandbox levels can never be won, so never offer the instant win.
-        if (level.isSandbox) return false
-        if (phase.value != GamePhase.PLAYER_TURN) return false
-        if (level.targetInfoMap.any { it.value.type == TargetType.SINGLE_HIT }) return false
-        if (isLevelLost() || isLevelWon()) return false
+    fun canWinLevelNow(): Boolean = WinLossRules.canWinLevelNow(this)
 
-        val aliveEnemies = attackers.filter { !it.isDefeated.value }
-        val enemiesToSpawn = spawnPlan.filter { it.spawnTurn > turnNumber.value }
-        // There must be at least one remaining enemy (otherwise the level is already won).
-        if (aliveEnemies.isEmpty() && enemiesToSpawn.isEmpty()) return false
-        // Summoners can create additional enemies, so the total threat cannot be bounded.
-        if (aliveEnemies.any { it.type.isSummoner() } || enemiesToSpawn.any { it.attackerType.isSummoner() }) return false
-
-        return getRemainingEnemyThreat() < healthPoints.value.toLong()
-    }
+    /**
+     * Returns true if an inactive gargoyle stands on [position]. Inactive gargoyles are not in
+     * [attackers], so units must check this separately: no unit may step onto their tile.
+     */
+    fun isInactiveGargoyleAt(position: Position): Boolean = gargoyles.any { !it.isActive.value && it.position.value == position }
 
     /**
      * Returns true if [position] is a target that can still be reached by enemies.
      * Taken SINGLE_HIT targets are excluded.
      */
-    fun isActiveTargetPosition(position: Position): Boolean = level.isTargetPosition(position) && !takenTargets.contains(position)
+    fun isActiveTargetPosition(position: Position): Boolean = TargetPlacementOps.isActiveTargetPosition(this, position)
+
+    fun getNextSingleHitTargetPosition(): Position? = TargetPlacementOps.getNextSingleHitTargetPosition(this)
+
+    fun getActiveTargetPositions(): List<Position> = TargetPlacementOps.getActiveTargetPositions(this)
 
     /**
-     * Returns the active (non-taken) target positions.
+     * When a SINGLE_HIT target at [takenPosition] is taken, redirect enemies to the next
+     * ordered target when sequencing is enabled, otherwise to their nearest remaining target.
      */
-    fun getActiveTargetPositions(): List<Position> = level.targetPositions.filter { !takenTargets.contains(it) }
+    fun retargetEnemiesFromTakenTarget(takenPosition: Position) = TargetPlacementOps.retargetEnemiesFromTakenTarget(this, takenPosition)
 
-    /**
-     * When a SINGLE_HIT target at [takenPosition] is taken, redirect all enemies
-     * whose currentTarget points to that position towards the nearest remaining active target.
-     */
-    fun retargetEnemiesFromTakenTarget(takenPosition: Position) {
-        val remaining = getActiveTargetPositions()
-        if (remaining.isEmpty()) return // No active targets left – level will be lost
-        for (enemy in attackers) {
-            if (enemy.isDefeated.value) continue
-            if (enemy.currentTarget?.value == takenPosition) {
-                val newTarget = remaining.minByOrNull { enemy.position.value.distanceTo(it) } ?: remaining.first()
-                enemy.currentTarget.value = newTarget
-                println("Enemy ${enemy.id} (${enemy.type}) retargeted from $takenPosition to $newTarget")
-            }
-        }
-    }
-
-    /**
-     * Returns the effective next waypoint target, redirecting to the nearest active target
-     * if the waypoint's next target is a taken SINGLE_HIT target.
-     */
     fun resolveWaypointNextTarget(
         waypointNextTarget: Position,
         from: Position,
-    ): Position =
-        if (takenTargets.contains(waypointNextTarget)) {
-            getActiveTargetPositions().minByOrNull { from.distanceTo(it) } ?: waypointNextTarget
-        } else {
-            waypointNextTarget
-        }
+    ): Position = TargetPlacementOps.resolveWaypointNextTarget(this, waypointNextTarget, from)
 
-    fun canPlaceDefender(type: DefenderType): Boolean = (level.isSandbox || coins.value >= type.baseCost) && level.availableTowers.contains(type)
+    fun canPlaceDefender(
+        type: DefenderType,
+        extraCost: Int = 0,
+    ): Boolean = TargetPlacementOps.canPlaceDefender(this, type, extraCost)
 
-    fun canUpgradeDefender(defender: Defender): Boolean = level.isSandbox || coins.value >= defender.upgradeCost
+    fun canAffordTowerButton(type: DefenderType): Boolean = TargetPlacementOps.canAffordTowerButton(this, type)
+
+    fun keyboardPlacementCandidates(type: DefenderType): List<Position> = TargetPlacementOps.keyboardPlacementCandidates(this, type)
+
+    fun isAutoTowerBasePathSpot(
+        type: DefenderType,
+        position: Position,
+    ): Boolean = TargetPlacementOps.isAutoTowerBasePathSpot(this, type, position)
+
+    fun canUpgradeDefender(defender: Defender): Boolean = defender.type != DefenderType.ALTAR && (level.isSandbox || coins.value >= defender.upgradeCost) && !defender.isGrippedByKraken.value
+
+    fun canSanctifyDefender(defender: Defender): Boolean =
+        defender in defenders &&
+            defender.type == DefenderType.WIZARD_TOWER &&
+            defender.level.value >= 10 &&
+            defender.isReady &&
+            !defender.isDisabled.value &&
+            defender.raftId.value == null &&
+            currentTileTypeAt(defender.position.value) == de.egril.defender.editor.TileType.BUILD_AREA &&
+            level.isBuildArea(defender.position.value) &&
+            !level.isRiverTile(defender.position.value) &&
+            runes.value >= 1 &&
+            (phase.value == GamePhase.PLAYER_TURN || phase.value == GamePhase.INITIAL_BUILDING)
+
+    fun canActivateAltar(defender: Defender): Boolean =
+        defender in defenders &&
+            defender.type == DefenderType.ALTAR &&
+            phase.value == GamePhase.PLAYER_TURN &&
+            defender.isReady &&
+            !defender.isDisabled.value &&
+            defender.actionsRemaining.value > 0 &&
+            !defender.isChanneling.value
 
     fun hasActionsRemaining(): Boolean = actionsRemainingThisTurn.value > 0
 
-    fun getRemainingEnemyCount(): Int {
-        val totalSpawned = this.nextAttackerId.value - 1
-        val plannedSpawns = this.spawnPlan.drop(totalSpawned)
-        return plannedSpawns.size
+    fun getRemainingPlannedEnemySpawns(): List<PlannedEnemySpawn> =
+        if (spawnGroups != null) {
+            forecastRemainingGroupSpawns() ?: emptyList()
+        } else {
+            spawnPlan.filter { it.spawnTurn > turnNumber.value }
+        }
+
+    fun getRemainingEnemyCount(): Int = getRemainingPlannedEnemySpawns().size
+
+    // ---------------------------------------------------------------------------------------------
+    // Spawn loops (issue #694)
+    // ---------------------------------------------------------------------------------------------
+
+    /**
+     * Returns the planned spawns for the given absolute [turn].
+     *
+     * For legacy levels (no [spawnGroups]) this simply filters the flat [spawnPlan]. For spawn-loop
+     * levels it advances the [spawnGroupCursor] exactly once per turn and materializes the spawns of
+     * the active group's current turn offset. Called once per turn by the spawn code paths (turn 1
+     * via initial spawning, later turns via the enemy-turn spawner). Re-querying an already-processed
+     * turn returns no spawns, guarding against accidental double-spawning.
+     */
+    fun plannedSpawnsForTurn(turn: Int): List<PlannedEnemySpawn> {
+        val root = spawnSequenceRootGroup ?: return spawnPlan.filter { it.spawnTurn == turn }
+        return advanceSpawnGroups(root, turn)
+    }
+
+    /** The level's top-level spawn sequence wrapped in the implicit, non-repeating root group. */
+    private val spawnSequenceRootGroup: SpawnGroup? by lazy { spawnGroups?.let { spawnSequenceRoot(it) } }
+
+    /**
+     * Binds a spawn group's logical [unitId] to the actually-spawned [attackerId]. The binding is
+     * only set once (first spawned unit wins) so a named boss keeps a stable identity across loop
+     * iterations and save/load.
+     */
+    fun bindSpawnGroupUnit(
+        unitId: String,
+        attackerId: Int,
+    ) {
+        if (!spawnGroupBindings.containsKey(unitId)) {
+            spawnGroupBindings[unitId] = attackerId
+        }
+    }
+
+    /** True if the unit bound to [unitId] exists and is not defeated. Missing bindings count as dead. */
+    fun isSpawnGroupUnitAlive(unitId: String): Boolean {
+        val boundId = spawnGroupBindings[unitId] ?: return false
+        return attackers.any { it.id == boundId && !it.isDefeated.value }
+    }
+
+    private fun advanceSpawnGroups(
+        root: SpawnGroup,
+        turn: Int,
+    ): List<PlannedEnemySpawn> = SpawnLoopOps.advanceSpawnGroups(this, root, turn)
+
+    /**
+     * Permanently ends the spawn loop [groupId] (event action STOP_SPAWN_LOOP). A running loop stops
+     * right away and spawning continues after it from the next unprocessed turn; a loop that has not
+     * started yet is skipped when reached.
+     */
+    fun stopSpawnLoop(groupId: String) {
+        if (groupId !in stoppedSpawnLoops) stoppedSpawnLoops.add(groupId)
+        val root = spawnSequenceRootGroup ?: return
+        val cursor = spawnGroupCursor.value
+        spawnGroupCursor.value = SpawnSequenceRunner.stop(root, cursor, groupId, cursor.lastProcessedTurn + 1)
+    }
+
+    private fun shouldLoop(
+        group: SpawnGroup,
+        repetition: Int,
+    ): Boolean = SpawnLoopOps.shouldLoop(this, group, repetition)
+
+    /**
+     * Best-effort forecast of all remaining scripted spawns for spawn-loop levels, used for UI
+     * previews and guaranteed-win detection. Returns `null` when the remaining schedule is unbounded
+     * (an [SpawnRepeatMode.INFINITE] group, or a [SpawnRepeatMode.CONDITION] group whose loop
+     * decision depends on future game state). Does not mutate the cursor.
+     */
+    fun forecastRemainingGroupSpawns(): List<PlannedEnemySpawn>? {
+        val root = spawnSequenceRootGroup ?: return emptyList()
+        return SpawnLoopOps.forecastRemainingGroupSpawns(this, root)
     }
 
     fun getActiveEnemyCount(): Int {
@@ -513,286 +473,73 @@ data class GameState(
     /**
      * Check if a position is covered by any active bridge
      */
-    fun isBridgeAt(position: Position): Boolean =
-        bridges.any { bridge ->
-            bridge.isActive && bridge.coversPosition(position)
-        }
+    fun isBridgeAt(position: Position): Boolean = QueryOps.isBridgeAt(this, position)
 
     /**
      * Get the bridge at a position, if any
      */
-    fun getBridgeAt(position: Position): Bridge? =
-        bridges.find { bridge ->
-            bridge.isActive && bridge.coversPosition(position)
-        }
+    fun getBridgeAt(position: Position): Bridge? = QueryOps.getBridgeAt(this, position)
+
+    fun getPortalAtEntry(position: Position): Portal? = QueryOps.getPortalAtEntry(this, position)
+
+    fun isPortalEntry(position: Position): Boolean = QueryOps.isPortalEntry(this, position)
+
+    fun isPortalExit(position: Position): Boolean = QueryOps.isPortalExit(this, position)
+
+    fun isPortalTile(position: Position): Boolean = QueryOps.isPortalTile(this, position)
 
     /**
      * Check if a position has a raft
      */
-    fun isRaftAt(position: Position): Boolean =
-        rafts.any { raft ->
-            raft.isActive && raft.currentPosition.value == position
-        }
+    fun isRaftAt(position: Position): Boolean = QueryOps.isRaftAt(this, position)
 
     /**
      * Get the raft at a position, if any
      */
-    fun getRaftAt(position: Position): Raft? =
-        rafts.find { raft ->
-            raft.isActive && raft.currentPosition.value == position
-        }
+    fun getRaftAt(position: Position): Raft? = QueryOps.getRaftAt(this, position)
 
     /**
      * Effective attack range for a defender, accounting for the DOUBLE_TOWER_REACH spell buff
      * (whether granted by a mana spell or a spell-token support). This must be used everywhere
      * range is evaluated for attacking so the buff behaves consistently in the UI and combat.
      */
-    fun effectiveRange(defender: Defender): Int {
-        val hasDoubleReachBuff =
-            activeSpellEffects.any {
-                it.spell == SpellType.DOUBLE_TOWER_REACH && it.defenderId == defender.id
-            }
-        return if (hasDoubleReachBuff) defender.range * 2 else defender.range
-    }
+    fun effectiveRange(defender: Defender): Int = QueryOps.effectiveRange(this, defender)
 
     /**
      * Check if there are defenders with unused action points and enemies in range
      * Used to show end turn confirmation dialog
      */
-    fun hasDefendersWithUnusedActions(): Boolean {
-        // Get active attackers (not defeated, not building bridges)
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-
-        return defenders.any { defender ->
-            if (!defender.isReady ||
-                defender.actionsRemaining.value <= 0 ||
-                defender.isDisabled.value
-            ) {
-                return@any false
-            }
-
-            // Special handling for different tower types
-            when (defender.type) {
-                DefenderType.DWARVEN_MINE -> {
-                    // Mines always count as having unused actions (digging)
-                    true
-                }
-                else -> {
-                    // Only count attack towers if they have AttackType and enemies in range
-                    if (defender.type.attackType == AttackType.NONE) {
-                        false
-                    } else {
-                        // Check if there are any enemies in range
-                        activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
-                    }
-                }
-            }
-        }
-    }
+    fun hasDefendersWithUnusedActions(): Boolean = QueryOps.hasDefendersWithUnusedActions(this)
 
     /**
      * Get defenders that can be tabbed to: have action points left and either are mines
      * or have at least one enemy within attack range. Sorted by position (top-to-bottom,
      * left-to-right) for deterministic Tab cycling.
      */
-    fun getActionableTowersForTab(): List<Defender> {
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        return defenders
-            .filter { defender ->
-                if (!defender.isReady ||
-                    defender.actionsRemaining.value <= 0 ||
-                    defender.isDisabled.value
-                ) {
-                    return@filter false
-                }
-                when (defender.type) {
-                    DefenderType.DWARVEN_MINE -> true
-                    else -> {
-                        if (defender.type.attackType == AttackType.NONE) {
-                            false
-                        } else {
-                            activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
-                        }
-                    }
-                }
-            }.sortedWith(compareBy({ it.position.value.y }, { it.position.value.x }))
-    }
+    fun getActionableTowersForTab(): List<Defender> = QueryOps.getActionableTowersForTab(this)
 
     /**
-     * Check if there are defenders that can perform auto-attacks.
-     * Returns true if there are defenders with actions that can be automated (regular attacks).
-     * Excludes special actions like mines, traps, and alchemy towers.
+     * Determine whether the auto-action button can perform attacks or mana generation this turn.
+     * ATTACK means at least one ready tower can auto-attack an enemy in range.
+     * MANA_ONLY means no attack is currently possible, but a wizard can auto-generate mana.
      */
-    fun hasDefendersForAutoAttack(): Boolean {
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
-        if (activeAttackers.isEmpty()) return false
+    fun getAutoAttackAvailability(): AutoAttackAvailability = QueryOps.getAutoAttackAvailability(this)
 
-        return defenders.any { defender ->
-            if (!defender.isReady ||
-                defender.actionsRemaining.value <= 0 ||
-                defender.isDisabled.value
-            ) {
-                return@any false
-            }
+    fun hasDefendersForAutoAttack(): Boolean = getAutoAttackAvailability() != AutoAttackAvailability.NONE
 
-            // Only count towers that can do regular auto-attacks
-            // Exclude mines (no attack) and wizard towers level 10+ (have trap ability that needs manual placement)
-            // Alchemy towers CAN auto-attack (they check acid immunity like wizard towers check fireball immunity)
-            when {
-                defender.type == DefenderType.DWARVEN_MINE -> false
-                defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> false
-                defender.type.attackType == AttackType.NONE -> false
-                else -> {
-                    // Check if there are any enemies in range
-                    activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
-                }
-            }
-        }
-    }
+    /** See [TowerActionOps.getDefenderTypesWithSpecialActions]. */
+    fun getDefenderTypesWithSpecialActions(): List<DefenderType> = TowerActionOps.getDefenderTypesWithSpecialActions(this)
 
-    /**
-     * Check if there are defenders with special actions that cannot be automated effectively.
-     * Returns a list of defender types that have remaining special actions.
-     */
-    fun getDefenderTypesWithSpecialActions(): List<DefenderType> {
-        val typesWithActions = mutableSetOf<DefenderType>()
-        val activeAttackers = attackers.filter { !it.isDefeated.value && !it.isBuildingBridge.value }
+    fun canWizardPlaceMagicalTrapAt(
+        wizard: Defender,
+        trapPosition: Position,
+    ): Boolean = TowerActionOps.canWizardPlaceMagicalTrapAt(this, wizard, trapPosition)
 
-        defenders.forEach { defender ->
-            if (!defender.isReady || defender.actionsRemaining.value <= 0 || defender.isDisabled.value) {
-                return@forEach
-            }
-
-            when {
-                // Dwarven mines with digging actions
-                defender.type == DefenderType.DWARVEN_MINE -> {
-                    typesWithActions.add(DefenderType.DWARVEN_MINE)
-                }
-                // Alchemy towers with lasting attacks only when no enemies in range
-                // (if enemies are in range, they will auto-attack like normal towers)
-                defender.type == DefenderType.ALCHEMY_TOWER -> {
-                    val hasEnemiesInRange = activeAttackers.any { attacker -> defender.canAttack(attacker, effectiveRange(defender)) }
-                    if (!hasEnemiesInRange) {
-                        typesWithActions.add(DefenderType.ALCHEMY_TOWER)
-                    }
-                }
-                // Wizard towers (level 10+) with magical trap available
-                defender.type == DefenderType.WIZARD_TOWER && defender.level.value >= 10 -> {
-                    if (defender.trapCooldownRemaining.value == 0) {
-                        typesWithActions.add(DefenderType.WIZARD_TOWER)
-                    }
-                }
-            }
-        }
-
-        return typesWithActions.toList()
-    }
+    fun canWizardPlaceAnyMagicalTrap(wizard: Defender): Boolean = TowerActionOps.canWizardPlaceAnyMagicalTrap(this, wizard)
 
     /**
      * Initialize pre-placed defenders, attackers, traps, and barricades from level configuration.
      * This should be called right after GameState creation to set up the initial level state.
      */
-    fun initializePrePlacedElements() {
-        // Get initial data using the helper method that handles both old and new formats
-        val initialData = level.getEffectiveInitialData()
-
-        // Initialize player-usable supports (placable objects + spell tokens) for this level
-        supportObjectsRemaining.clear()
-        for (supportObject in level.supports.objects) {
-            supportObjectsRemaining[supportObject.type] =
-                combineSupportCounts(supportObjectsRemaining[supportObject.type] ?: 0, supportObject.count)
-        }
-        supportSpellsRemaining.clear()
-        for (supportSpell in level.supports.spells) {
-            supportSpellsRemaining[supportSpell.spell] =
-                combineSupportCounts(supportSpellsRemaining[supportSpell.spell] ?: 0, supportSpell.count)
-        }
-
-        // Initialize cooldown-based support powers. Powers that start active are immediately usable
-        // (readyIn = 0); powers that start inactive begin on cooldown.
-        cooldownPowerReadyIn.clear()
-        for (power in level.supports.cooldownPowers) {
-            cooldownPowerReadyIn[power.type] = if (power.startActive) 0 else power.cooldownTurns
-        }
-        coinSurgeActive.value = false
-
-        // Place initial barricades FIRST (before defenders so we can link them)
-        for (initialBarricade in initialData.barricades) {
-            val barricade =
-                Barricade(
-                    id = nextBarricadeId.value++,
-                    position = initialBarricade.position,
-                    healthPoints = mutableStateOf(initialBarricade.healthPoints),
-                    defenderId = 0, // Pre-placed barricades don't belong to any specific defender
-                    isGate = initialBarricade.isGate,
-                    name = initialBarricade.name,
-                )
-            barricades.add(barricade)
-        }
-
-        // Place initial defenders
-        for (initialDefender in initialData.defenders) {
-            val defender =
-                Defender(
-                    id = nextDefenderId.value,
-                    type = initialDefender.type,
-                    position = mutableStateOf(initialDefender.position),
-                    placedOnTurn = 0, // Placed before the game starts
-                    dragonName = initialDefender.dragonName,
-                )
-            defender.level.value = initialDefender.level
-            defender.buildTimeRemaining.value = 0 // Already built
-            defender.actionsRemaining.value = 0 // No actions in initial phase
-
-            // If this defender should be on a tower base, find the barricade at the same position
-            if (initialDefender.onTowerBase) {
-                val barricadeAtPosition = barricades.find { it.position == initialDefender.position }
-                if (barricadeAtPosition != null && barricadeAtPosition.canSupportTower()) {
-                    defender.towerBaseBarricadeId.value = barricadeAtPosition.id
-                    barricadeAtPosition.supportedTowerId.value = defender.id
-                }
-            }
-
-            defenders.add(defender)
-            nextDefenderId.value++
-        }
-
-        // Place initial attackers
-        for (initialAttacker in initialData.attackers) {
-            val attacker =
-                Attacker(
-                    id = nextAttackerId.value,
-                    type = initialAttacker.type,
-                    position = mutableStateOf(initialAttacker.position),
-                    level = mutableStateOf(initialAttacker.level),
-                    dragonName = initialAttacker.dragonName,
-                )
-            // Set custom health if specified, otherwise use default for level
-            val health = initialAttacker.currentHealth ?: (initialAttacker.type.health * initialAttacker.level)
-            attacker.currentHealth.value = health
-            attacker.isDefeated.value = false
-            attackers.add(attacker)
-            nextAttackerId.value++
-        }
-
-        // Place initial traps
-        for (initialTrap in initialData.traps) {
-            val trapType =
-                try {
-                    TrapType.valueOf(initialTrap.type)
-                } catch (e: Exception) {
-                    TrapType.DWARVEN
-                }
-            // We need a defender ID for the trap, but there may not be one
-            // Use defenderId = 0 to indicate it's a pre-placed trap
-            val trap =
-                Trap(
-                    position = initialTrap.position,
-                    damage = initialTrap.damage,
-                    defenderId = 0, // Pre-placed traps don't belong to any specific defender
-                    type = trapType,
-                )
-            traps.add(trap)
-        }
-    }
+    fun initializePrePlacedElements() = InitialSetupOps.initializePrePlacedElements(this)
 }

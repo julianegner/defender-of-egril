@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -35,19 +36,21 @@ import defender_of_egril.composeapp.generated.resources.allow_auto_attack
 import defender_of_egril.composeapp.generated.resources.author_optional
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_message
 import defender_of_egril.composeapp.generated.resources.auto_attack_info_title
+import defender_of_egril.composeapp.generated.resources.auto_tower_base
+import defender_of_egril.composeapp.generated.resources.auto_tower_base_extra_cost
 import defender_of_egril.composeapp.generated.resources.community_description_optional
 import defender_of_egril.composeapp.generated.resources.connected_to_previous_level
 import defender_of_egril.composeapp.generated.resources.level_title
 import defender_of_egril.composeapp.generated.resources.map_label
 import defender_of_egril.composeapp.generated.resources.ok
 import defender_of_egril.composeapp.generated.resources.sandbox_level
-import defender_of_egril.composeapp.generated.resources.split_build_tower_button
 import defender_of_egril.composeapp.generated.resources.start_coins
 import defender_of_egril.composeapp.generated.resources.start_hp
 import defender_of_egril.composeapp.generated.resources.subtitle_optional
 import defender_of_egril.composeapp.generated.resources.test_level
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_message
 import defender_of_egril.composeapp.generated.resources.user_map_not_allowed_title
+import defender_of_egril.composeapp.generated.resources.waagh_enabled
 
 /**
  * Tab 1: Level Info (title, subtitle, map, coins, HP)
@@ -78,10 +81,14 @@ fun LevelInfoTab(
     onAllowAutoAttackChange: (Boolean) -> Unit,
     connectedToPreviousLevel: Boolean,
     onConnectedToPreviousLevelChange: (Boolean) -> Unit,
-    splitBuildTowerButton: Boolean,
-    onSplitBuildTowerButtonChange: (Boolean) -> Unit,
+    autoTowerBase: Boolean = false,
+    onAutoTowerBaseChange: (Boolean) -> Unit = {},
+    autoTowerBaseExtraCost: String = "",
+    onAutoTowerBaseExtraCostChange: (String) -> Unit = {},
     isSandbox: Boolean = false,
     onIsSandboxChange: (Boolean) -> Unit = {},
+    waaghEnabled: Boolean = false,
+    onWaaghEnabledChange: (Boolean) -> Unit = {},
     isOfficial: Boolean = false,
     canEnableConnectedToPreviousLevel: Boolean = true,
 ) {
@@ -145,6 +152,8 @@ fun LevelInfoTab(
                     modifier =
                         Modifier
                             .padding(top = 8.dp)
+                            // Fixed width gives the text fields a bounded width; otherwise the title column is squeezed
+                            .width(280.dp)
                             .border(
                                 width = 1.dp,
                                 color = MaterialTheme.colorScheme.outline,
@@ -210,18 +219,28 @@ fun LevelInfoTab(
                         )
                     }
 
-                    // Split build tower button toggle
+                    // Auto tower base toggle: towers may be placed on PATH tiles with a base barricade
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
-                            text = stringResource(Res.string.split_build_tower_button),
+                            text = stringResource(Res.string.auto_tower_base),
                             style = MaterialTheme.typography.bodyMedium,
                         )
                         Switch(
-                            checked = splitBuildTowerButton,
-                            onCheckedChange = onSplitBuildTowerButtonChange,
+                            checked = autoTowerBase,
+                            onCheckedChange = onAutoTowerBaseChange,
+                        )
+                    }
+
+                    if (autoTowerBase) {
+                        OutlinedTextField(
+                            value = autoTowerBaseExtraCost,
+                            onValueChange = onAutoTowerBaseExtraCostChange,
+                            label = { Text(stringResource(Res.string.auto_tower_base_extra_cost)) },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
                         )
                     }
 
@@ -237,6 +256,21 @@ fun LevelInfoTab(
                         Switch(
                             checked = isSandbox,
                             onCheckedChange = onIsSandboxChange,
+                        )
+                    }
+
+                    // Waaagh! enabled toggle
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.waagh_enabled),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Switch(
+                            checked = waaghEnabled,
+                            onCheckedChange = onWaaghEnabledChange,
                         )
                     }
                 }

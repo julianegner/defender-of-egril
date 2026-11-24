@@ -107,15 +107,28 @@ data class CooldownPower(
 )
 
 /**
- * All player-usable supports (placable objects + spell tokens + cooldown powers) defined for a level.
+ * A fief support token granted to the player for a level. Allows the player to place a fief
+ * on any valid path tile during gameplay.
+ *
+ * @param type  Which fief type can be placed.
+ * @param count How many of this fief the player may place.
+ */
+data class SupportFief(
+    val type: FiefType,
+    val count: Int = 1,
+)
+
+/**
+ * All player-usable supports (placable objects + spell tokens + cooldown powers + fief tokens) defined for a level.
  * Displayed as boxes above the gameplay buttons and mentioned in the level's story message.
  */
 data class LevelSupports(
     val objects: List<SupportObject> = emptyList(),
     val spells: List<SupportSpell> = emptyList(),
     val cooldownPowers: List<CooldownPower> = emptyList(),
+    val fiefs: List<SupportFief> = emptyList(),
 ) {
-    fun isEmpty(): Boolean = objects.isEmpty() && spells.isEmpty() && cooldownPowers.isEmpty()
+    fun isEmpty(): Boolean = objects.isEmpty() && spells.isEmpty() && cooldownPowers.isEmpty() && fiefs.isEmpty()
 
     fun isNotEmpty(): Boolean = !isEmpty()
 }

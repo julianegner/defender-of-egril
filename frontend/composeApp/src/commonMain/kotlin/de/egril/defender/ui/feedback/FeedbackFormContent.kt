@@ -34,6 +34,7 @@ import de.egril.defender.save.FeedbackAttachmentData
 import de.egril.defender.save.FeedbackSubmitRequest
 import de.egril.defender.save.serializeSettingsJson
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.toSettingsMap
 import de.egril.defender.utils.currentTimeMillis
 import de.egril.defender.utils.getClientPlatformName
 import de.egril.defender.utils.getOrCreateInstallUuid

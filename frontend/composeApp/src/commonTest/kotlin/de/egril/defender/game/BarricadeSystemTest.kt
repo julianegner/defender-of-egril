@@ -350,6 +350,31 @@ class BarricadeSystemTest {
     }
 
     @Test
+    fun testDwarvenMineCannotBePlacedOnTowerBaseBarricade() {
+        val baseLevel = createTestLevel()
+        val level =
+            baseLevel.copy(
+                availableTowers = baseLevel.availableTowers + DefenderType.DWARVEN_MINE,
+            )
+        val gameState = GameState(level)
+        val engine = GameEngine(gameState)
+        val towerBasePosition = Position(3, 0)
+        gameState.barricades.add(
+            Barricade(
+                id = 1,
+                position = towerBasePosition,
+                healthPoints = mutableStateOf(100),
+                defenderId = 0,
+            ),
+        )
+
+        val placed = engine.placeDefender(DefenderType.DWARVEN_MINE, towerBasePosition)
+
+        assertFalse(placed, "Dwarven mine must not be placed on a tower-base barricade")
+        assertTrue(gameState.defenders.isEmpty(), "No defender should be placed on the tower base")
+    }
+
+    @Test
     fun testBarricadeTutorialTriggersAtCorrectLevel() {
         val level = createTestLevel()
         val gameState = GameState(level)

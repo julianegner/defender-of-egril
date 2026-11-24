@@ -33,24 +33,47 @@ Shared utilities for tile manipulation:
 All map editor components:
 
 - `MapEditorContent` - Main content for Map Editor tab
-- `MapEditorView` - View for editing a specific map
+- `MapEditorView` - View for editing a specific map (split, see below)
 - `MapEditorHeader` - Header with controls for map editing
 - `MapListCard` - Card displaying map in the list
 - `MapSelectionCard` - Card for selecting maps in level editor
 
-#### 5. **LevelEditor.kt** (477 lines)
+The map editing view is split across these files in `ui/editor/map/`, each below 1000 lines:
 
-All level editor components:
+- `MapEditorView.kt` - `MapEditorView`, derived map values and the layout skeleton (state accessed via `with(state)`)
+- `MapEditorViewState.kt` - `MapEditorViewState`, the mutable editor state and undo snapshots
+- `MapEditorViewGrid.kt` - Hex grid, tile painting, cell rendering (`MapEditorViewGrid`)
+- `MapEditorViewSidePanel.kt` - Tools side panel: resize, tile replacement, area clipboard, zones, validators
+- `MapEditorViewFooter.kt` - Save, Save As, Template, Cancel buttons and community upload
+- `MapEditorViewDialogs.kt` - Map image generation, river ring, save-as, save-template and target dialogs
+- `MapEditorViewActions.kt` - Map preview loading and regeneration
+
+#### 5. **LevelEditor.kt** (311 lines)
+
+Level list and tab index mapping:
 
 - `LevelEditorContent` - Main content for Level Editor tab
-- `LevelEditorView` - View for editing a specific level
+- `LevelEditorTabIndices` / `levelEditorTabIndices` - Tab index mapping
+
+The level editing view is split across these files, each below 1000 lines:
+
+- `LevelEditorCard.kt` - `LevelCard`, the level list item
+- `LevelEditorBadges.kt` - `RedDotBadge`, `WarningBadge`, `areWaypointsValid`
+- `LevelEditorView.kt` - `LevelEditorView`, derived values and tab layout (state accessed via `with(state)`)
+- `LevelEditorViewState.kt` - `LevelEditorViewState`, the mutable editor state and enemy spawn undo/redo
+- `LevelEditorViewActions.kt` - Save, Save As, Cancel buttons and community upload
+- `LevelEditorViewDialogs.kt` - Add enemy, remove-all-turns, save-as and official-save warning dialogs
 
 #### 6. **LevelEditorComponents.kt** (241 lines)
 
 Shared components used by level editor:
 
 - `AddEnemyDialog` - Dialog for adding enemies to turns
-- `SpawnTurnSection` - Collapsible section showing enemies in a turn
+
+Spawn-related components were moved out to keep each file under 1000 lines:
+
+- `LevelEditorSpawnDialogs.kt` - Spawn point and spawn level dialogs (`SpawnPointSelectionDialog`, `SelectSpawnPointDialog`, `ChangeSpawnPointDialog`, `ChangeLevelDialog`, `ChangeTurnLevelDialog`)
+- `LevelEditorSpawnSections.kt` - `SpawnTurnSection`, `EnemySpawnRow`, and `ChangeAllSpawnPointsDialog`
 
 #### 7. **LevelSequence.kt** (93 lines)
 
@@ -103,7 +126,9 @@ The original file at `ui/LevelEditorScreen.kt` now contains a simple wrapper fun
 | TileUtils.kt | 65 | Tile utilities |
 | MapEditor.kt | 618 | Map editing |
 | LevelEditor.kt | 477 | Level editing |
-| LevelEditorComponents.kt | 241 | Shared level components |
+| LevelEditorComponents.kt | 288 | Shared level components (AddEnemyDialog) |
+| LevelEditorSpawnDialogs.kt | 428 | Spawn point and spawn level dialogs |
+| LevelEditorSpawnSections.kt | 569 | Spawn turn section and bulk spawn point dialog |
 | LevelSequence.kt | 93 | Sequence management |
 | LevelEditorScreen.kt | 119 | Main orchestrator |
 | **Total** | **1765** | |

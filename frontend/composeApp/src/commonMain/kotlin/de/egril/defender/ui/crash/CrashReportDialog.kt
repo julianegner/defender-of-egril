@@ -32,6 +32,7 @@ import de.egril.defender.save.CrashReportSubmitRequest
 import de.egril.defender.save.serializeSettingsJson
 import de.egril.defender.ui.gameplay.ShortcutKeyChip
 import de.egril.defender.ui.settings.AppSettings
+import de.egril.defender.ui.settings.toSettingsMap
 import de.egril.defender.utils.CrashInfo
 import de.egril.defender.utils.CrashReporter
 import defender_of_egril.composeapp.generated.resources.*
