@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "ewhads_challenge",
+    "isOfficial": true,
     "mapId": "map_ewhads_challenge",
     "title": "Ewhad's Challenge",
     "titleKey": "level_ewhads_challenge_title",

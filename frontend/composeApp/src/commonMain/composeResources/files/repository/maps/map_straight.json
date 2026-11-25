@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_straight",
+    "isOfficial": true,
     "name": "Straight Map",
     "nameKey": "map_straight_name",
     "width": 45,

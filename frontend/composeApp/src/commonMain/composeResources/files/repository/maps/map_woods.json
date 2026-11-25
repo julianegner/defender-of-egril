@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_woods",
+    "isOfficial": true,
     "name": "The Woods",
     "nameKey": "map_woods_name",
     "width": 40,

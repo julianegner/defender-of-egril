@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_island",
+    "isOfficial": true,
     "mapId": "map_the_island",
     "title": "The Island",
     "titleKey": "level_the_island_title",

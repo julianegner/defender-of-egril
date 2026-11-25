@@ -5,6 +5,7 @@
   },
   "data": {
   "id": "the_labyrinth",
+  "isOfficial": true,
   "mapId": "map_the_labyrinth",
   "title": "The Labyrinth",
   "titleKey": "level_the_labyrinth_title",

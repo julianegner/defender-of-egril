@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_winding_path",
+    "isOfficial": true,
     "mapId": "map_winding_path",
     "title": "The Winding Path",
     "titleKey": "level_the_winding_path_title",

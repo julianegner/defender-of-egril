@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_the_cross",
+    "isOfficial": true,
     "name": "The Cross",
     "nameKey": "map_the_cross_name",
     "width": 40,

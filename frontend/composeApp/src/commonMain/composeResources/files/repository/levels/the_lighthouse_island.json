@@ -6,6 +6,7 @@
   },
   "data": {
   "id": "the_lighthouse_island",
+  "isOfficial": true,
   "mapId": "map_the_lighthouse_island",
   "title": "The Lighthouse Island",
   "subtitle": "",

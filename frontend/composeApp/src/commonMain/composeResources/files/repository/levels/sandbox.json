@@ -5,6 +5,7 @@
   },
   "data": {
   "id": "sandbox",
+  "isOfficial": true,
   "mapId": "map_plains",
   "title": "Sandbox",
   "subtitle": "",

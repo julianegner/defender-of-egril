@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_the_river",
+    "isOfficial": true,
     "name": "The River",
     "nameKey": "map_the_river_name",
     "width": 40,

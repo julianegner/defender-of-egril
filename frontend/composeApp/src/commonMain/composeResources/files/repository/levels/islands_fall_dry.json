@@ -6,6 +6,7 @@
   },
   "data": {
   "id": "islands_fall_dry",
+  "isOfficial": true,
   "mapId": "map_laguna_islands",
   "title": "Islands fall dry",
   "subtitle": "",

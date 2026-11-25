@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_rush",
+    "isOfficial": true,
     "mapId": "map_the_rush",
     "title": "The Rush",
     "titleKey": "level_the_rush_title",

@@ -10,7 +10,7 @@
   "width": 40,
   "height": 78,
   "readyToUse": true,
-  "isOfficial": false,
+  "isOfficial": true,
   "mapToolingInfo": "",
   "allowNoBuildableTiles": true,
   "tiles": {

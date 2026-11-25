@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_spiral",
+    "isOfficial": true,
     "name": "Spiral Challenge Map",
     "nameKey": "map_spiral_name",
     "width": 40,

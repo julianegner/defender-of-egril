@@ -5,6 +5,7 @@
   },
   "data": {
   "id": "the_hedges",
+  "isOfficial": true,
   "mapId": "map_hedges",
   "title": "The Hedges",
   "subtitle": "",

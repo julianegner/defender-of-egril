@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_spiral_challenge",
+    "isOfficial": true,
     "mapId": "map_spiral",
     "title": "The Spiral Challenge",
     "titleKey": "level_the_spiral_challenge_title",

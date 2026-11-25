@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_creek",
+    "isOfficial": true,
     "mapId": "map_the_creek",
     "title": "The Creek",
     "titleKey": "level_the_creek_title",

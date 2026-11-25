@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_the_maelstrom",
+    "isOfficial": true,
     "name": "The Maelstrom",
     "nameKey": "map_the_maelstrom_name",
     "width": 50,

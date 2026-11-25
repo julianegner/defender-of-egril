@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "welcome_to_defender_of_egril",
+    "isOfficial": true,
     "mapId": "map_tutorial",
     "title": "Welcome to Defender of Egril",
     "titleKey": "level_welcome_to_defender_of_egril_title",

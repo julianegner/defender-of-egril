@@ -6,6 +6,7 @@
   },
   "data": {
   "id": "the_volcano",
+  "isOfficial": true,
   "mapId": "map_the_volcano",
   "title": "The Volcano",
   "subtitle": "",

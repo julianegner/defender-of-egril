@@ -6,6 +6,7 @@
   },
   "data": {
   "id": "runes_and_altars",
+  "isOfficial": true,
   "mapId": "map_the_altars",
   "title": "Runes and Altars",
   "subtitle": "",

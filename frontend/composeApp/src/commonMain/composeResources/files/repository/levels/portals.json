@@ -5,6 +5,7 @@
   },
   "data": {
   "id": "portals",
+  "isOfficial": true,
   "mapId": "map_portals",
   "title": "Portals",
   "subtitle": "",

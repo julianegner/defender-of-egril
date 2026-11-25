@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_fast_and_furious",
+    "isOfficial": true,
     "mapId": "map_fast_and_furious",
     "title": "The Fast and Furious",
     "titleKey": "level_the_fast_and_furious_title",

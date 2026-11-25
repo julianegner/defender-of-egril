@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_woods_first_incursion",
+    "isOfficial": true,
     "mapId": "map_woods",
     "title": "The Woods - First Incursion",
     "titleKey": "level_the_woods_first_incursion_title",

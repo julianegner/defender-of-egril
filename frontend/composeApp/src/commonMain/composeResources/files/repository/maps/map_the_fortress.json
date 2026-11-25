@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_the_fortress",
+    "isOfficial": true,
     "name": "The Fortress",
     "nameKey": "map_the_fortress_name",
     "width": 40,

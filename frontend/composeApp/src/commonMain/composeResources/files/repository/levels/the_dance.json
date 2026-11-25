@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_dance",
+    "isOfficial": true,
     "mapId": "map_dance",
     "title": "The Dance",
     "titleKey": "level_the_dance_title",

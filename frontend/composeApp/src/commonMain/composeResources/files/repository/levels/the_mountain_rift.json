@@ -6,6 +6,7 @@
   },
   "data": {
   "id": "the_mountain_rift",
+  "isOfficial": true,
   "mapId": "map_in_the_mountains",
   "title": "The Mountain Rift",
   "subtitle": "",

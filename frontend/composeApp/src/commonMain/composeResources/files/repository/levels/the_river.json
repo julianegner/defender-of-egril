@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "the_river",
+    "isOfficial": true,
     "mapId": "map_the_river",
     "title": "The River",
     "titleKey": "level_the_river_title",

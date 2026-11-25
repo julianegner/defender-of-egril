@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "creek_valley",
+    "isOfficial": true,
     "mapId": "map_creek_valley",
     "title": "Creek Valley",
     "titleKey": "level_creek_valley_title",

@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "maelstrom",
+    "isOfficial": true,
     "mapId": "map_the_maelstrom",
     "title": "Maelstrom",
     "titleKey": "level_maelstrom_title",

@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_tutorial",
+    "isOfficial": true,
     "name": "Tutorial Map",
     "nameKey": "map_tutorial_name",
     "width": 15,

@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_ewhads_challenge",
+    "isOfficial": true,
     "name": "Ewhads Challenge",
     "nameKey": "map_ewhads_challenge_name",
     "width": 45,

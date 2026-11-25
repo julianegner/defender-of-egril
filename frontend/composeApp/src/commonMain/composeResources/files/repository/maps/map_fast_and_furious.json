@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_fast_and_furious",
+    "isOfficial": true,
     "name": "Fast and Furious Map",
     "nameKey": "map_fast_and_furious_name",
     "width": 10,

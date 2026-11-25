@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_plains",
+    "isOfficial": true,
     "name": "The Plains",
     "nameKey": "map_plains_name",
     "width": 40,

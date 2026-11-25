@@ -5,6 +5,7 @@
   },
   "data": {
   "id": "flotsam_city",
+  "isOfficial": true,
   "mapId": "map_flotsam_city",
   "title": "Flotsam City",
   "titleKey": "level_flotsam_city_title",

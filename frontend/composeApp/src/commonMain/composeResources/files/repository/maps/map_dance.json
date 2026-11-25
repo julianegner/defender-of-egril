@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_dance",
+    "isOfficial": true,
     "name": "The Dance",
     "nameKey": "map_dance_name",
     "width": 40,

@@ -5,6 +5,7 @@
   },
   "data": {
   "id": "the_frame",
+  "isOfficial": true,
   "mapId": "map_the_frame",
   "title": "The Frame",
   "subtitle": "",

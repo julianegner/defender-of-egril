@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_the_creek",
+    "isOfficial": true,
     "name": "The Creek",
     "nameKey": "map_the_creek_name",
     "width": 30,

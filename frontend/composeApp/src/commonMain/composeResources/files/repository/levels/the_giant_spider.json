@@ -5,6 +5,7 @@
   },
   "data": {
   "id": "the_giant_spider",
+  "isOfficial": true,
   "mapId": "map_the_spiderweb",
   "title": "The Giant Spider",
   "subtitle": "",

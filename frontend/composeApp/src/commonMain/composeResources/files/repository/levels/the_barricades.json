@@ -5,6 +5,7 @@
   },
   "data": {
   "id": "the_barricades",
+  "isOfficial": true,
   "mapId": "map_the_barricades",
   "title": "The Barricades",
   "titleKey": "level_the_barricades_title",

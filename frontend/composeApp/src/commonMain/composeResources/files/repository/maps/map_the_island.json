@@ -5,6 +5,7 @@
   },
   "data": {
     "id": "map_the_island",
+    "isOfficial": true,
     "name": "The Island",
     "nameKey": "map_the_island_name",
     "width": 30,
