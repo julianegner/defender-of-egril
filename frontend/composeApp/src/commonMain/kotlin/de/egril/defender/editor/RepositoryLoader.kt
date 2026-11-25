@@ -17,6 +17,14 @@ object RepositoryLoader {
     private fun getRepositoryLevelIds(sequence: LevelSequence): List<String> = (sequence.sequence + EXTRA_REPOSITORY_LEVEL_IDS).distinct()
 
     private const val STORED_FINGERPRINT_FILE = "gamedata/repository_fingerprint.txt"
+
+    /**
+     * Copy of the repository worldmap as it was last written to official storage. Comparing the
+     * user-editable official worldmap against the repository would treat every Level Editor change
+     * as a repository update, which then overwrites the edit.
+     */
+    const val WORLDMAP_REPO_BASELINE_FILE = "gamedata/worldmap_repo_baseline.json"
+    private const val OFFICIAL_WORLDMAP_FILE = "gamedata/official/worldmap.json"
     private const val FNV1A_64_OFFSET_BASIS = 1469598103934665603UL
     private const val FNV1A_64_PRIME = 1099511628211UL
 
@@ -341,14 +349,26 @@ object RepositoryLoader {
      * a storage quota overflow.
      */
     private suspend fun refreshWorldMapInStorage(storage: FileStorage) {
-        val worldMapData = loadWorldMapData()
-        if (worldMapData != null) {
-            val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
-            storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+        val worldMapData = loadWorldMapData() ?: return
+        saveRepositoryWorldMap(storage, worldMapData)
+    }
+
+    /**
+     * Writes the repository worldmap to official storage and records it as the sync baseline.
+     * If the official file was edited locally (differs from the previous baseline), the edit is kept.
+     */
+    private fun saveRepositoryWorldMap(storage: FileStorage, worldMapData: WorldMapData) {
+        val repoJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
+        val currentJson = storage.readFile(OFFICIAL_WORLDMAP_FILE)
+        val previousBaselineJson = storage.readFile(WORLDMAP_REPO_BASELINE_FILE)
+        storage.writeFile(WORLDMAP_REPO_BASELINE_FILE, repoJson)
+        if (currentJson != null && previousBaselineJson != null && currentJson != previousBaselineJson) {
             if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
-                println("Refreshed official worldmap.json from repository (fast path)")
+                println("Keeping locally modified official worldmap.json")
             }
+            return
         }
+        storage.writeFile(OFFICIAL_WORLDMAP_FILE, repoJson)
     }
 
     /**
@@ -535,8 +555,7 @@ object RepositoryLoader {
             // Always load and save world map data from repository to official directory
             val worldMapData = loadWorldMapData()
             if (worldMapData != null) {
-                val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
-                storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+                saveRepositoryWorldMap(storage, worldMapData)
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Loaded and saved official worldmap.json from repository")
                 }
@@ -666,8 +685,7 @@ object RepositoryLoader {
 
             val worldMapData = loadWorldMapData()
             if (worldMapData != null) {
-                val worldMapJson = EditorJsonSerializer.serializeWorldMapData(worldMapData)
-                storage.writeFile("gamedata/official/worldmap.json", worldMapJson)
+                saveRepositoryWorldMap(storage, worldMapData)
                 if (LogConfig.ENABLE_LEVEL_LOADING_LOGGING) {
                     println("Saved official worldmap.json (priority phase)")
                 }

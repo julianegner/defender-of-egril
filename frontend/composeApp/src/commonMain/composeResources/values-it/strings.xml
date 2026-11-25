@@ -2732,4 +2732,10 @@ Abbattilo in fretta prima che la sua orda travolga le vostre difese!</string>
     <string name="pick_position_on_map">Scegli sulla mappa</string>
     <string name="pick_position_stop">Termina selezione</string>
     <string name="pick_position_hint">Fai clic su una casella della mappa per impostare la posizione.</string>
+    <string name="unreachable_levels_official_only">Solo livelli ufficiali</string>
+    <string name="unreachable_levels_show_test">Mostra livelli di test</string>
+    <string name="unreachable_levels_none">Tutti i livelli sono raggiungibili dalla mappa del mondo.</string>
+    <string name="level_not_on_worldmap">Livelli non presenti sulla mappa del mondo</string>
+    <string name="unreachable_create_location">Crea posizione dalla selezione</string>
+    <string name="place_location_hint">Fai clic sulla mappa del mondo per posizionare la nuova posizione.</string>
 </resources>

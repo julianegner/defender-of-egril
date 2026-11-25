@@ -20,6 +20,7 @@ import de.egril.defender.editor.WorldMapLocationData
 import de.egril.defender.editor.WorldMapPathData
 import de.egril.defender.editor.WorldMapPoint
 import de.egril.defender.editor.getAllLevels
+import de.egril.defender.editor.getLevelSequence
 import de.egril.defender.editor.getWorldMapData
 import de.egril.defender.editor.saveWorldMapData
 import de.egril.defender.ui.icon.CheckmarkIcon
@@ -41,7 +42,12 @@ fun WorldMapPositionEditorContent() {
     var showAddLocationDialog by remember { mutableStateOf(false) }
     var showEditPathDialog by remember { mutableStateOf<WorldMapPathData?>(null) }
     var showAddConnectionDialog by remember { mutableStateOf(false) }
+    var showUnreachableLevelsDialog by remember { mutableStateOf(false) }
+    var levelSequence by remember { mutableStateOf<List<String>>(emptyList()) }
     var showEditLocationDialog by remember { mutableStateOf<WorldMapLocationData?>(null) }
+    // Location created in a dialog, waiting for the user to click its position on the map
+    var pendingLocation by remember { mutableStateOf<WorldMapLocationData?>(null) }
+    var addLocationPreselectedIds by remember { mutableStateOf<List<String>>(emptyList()) }
 
     // Connection creation mode: when active, clicking locations will create a connection
     var connectionCreationMode by remember { mutableStateOf(false) }
@@ -65,6 +71,7 @@ fun WorldMapPositionEditorContent() {
     LaunchedEffect(Unit) {
         worldMapData = EditorStorage.getWorldMapData()
         allLevels = EditorStorage.getAllLevels()
+        levelSequence = EditorStorage.getLevelSequence().sequence
     }
 
     var worldmapSavedSuccess by remember { mutableStateOf(false) }
@@ -201,8 +208,25 @@ fun WorldMapPositionEditorContent() {
                             }
                         },
                         onPositionClick = { point ->
-                            // Update position for selected location
-                            if (selectedLocationId != null) {
+                            val pending = pendingLocation
+                            if (pending != null) {
+                                // Place the new location; its levels move here from any other location
+                                val placed = pending.copy(position = point)
+                                val cleaned =
+                                    worldMapData.copy(
+                                        locations =
+                                            worldMapData.locations.map { loc ->
+                                                if (loc.id == placed.id) {
+                                                    loc
+                                                } else {
+                                                    loc.copy(levelIds = loc.levelIds - placed.levelIds.toSet())
+                                                }
+                                            },
+                                    )
+                                worldMapData = cleaned.withUpdatedLocation(placed)
+                                pendingLocation = null
+                            } else if (selectedLocationId != null) {
+                                // Update position for selected location
                                 val location = worldMapData.locations.find { it.id == selectedLocationId }
                                 if (location != null) {
                                     val updatedLocation = location.copy(position = point)
@@ -260,6 +284,34 @@ fun WorldMapPositionEditorContent() {
                             hoveredPosition = point
                         },
                     )
+
+                    // Hint while a new location waits for its position on the map
+                    if (pendingLocation != null) {
+                        Card(
+                            modifier =
+                                Modifier
+                                    .align(Alignment.TopCenter)
+                                    .padding(8.dp),
+                            colors =
+                                CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                                ),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Text(
+                                    text = stringResource(Res.string.place_location_hint),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
+                                OutlinedButton(onClick = { pendingLocation = null }) {
+                                    Text(stringResource(Res.string.cancel))
+                                }
+                            }
+                        }
+                    }
 
                     // Hover tooltip
                     if (hoveredPosition != null) {
@@ -436,11 +488,19 @@ fun WorldMapPositionEditorContent() {
                         Text(stringResource(Res.string.auto_connect_by_dependencies))
                     }
 
-                    Text(
-                        text = stringResource(Res.string.locations),
-                        style = MaterialTheme.typography.titleSmall,
-                        modifier = Modifier.padding(bottom = 8.dp),
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(Res.string.locations),
+                            style = MaterialTheme.typography.titleSmall,
+                        )
+                        OutlinedButton(onClick = { showUnreachableLevelsDialog = true }) {
+                            Text(stringResource(Res.string.level_not_on_worldmap))
+                        }
+                    }
 
                     LazyColumn(
                         modifier = Modifier.weight(1f),
@@ -521,6 +581,21 @@ fun WorldMapPositionEditorContent() {
         }
     }
 
+    // Unreachable Levels Dialog
+    if (showUnreachableLevelsDialog) {
+        UnreachableLevelsDialog(
+            levels = allLevels,
+            sequence = levelSequence,
+            worldMap = worldMapData,
+            onDismiss = { showUnreachableLevelsDialog = false },
+            onCreateLocation = { levelIds ->
+                addLocationPreselectedIds = levelIds
+                showUnreachableLevelsDialog = false
+                showAddLocationDialog = true
+            },
+        )
+    }
+
     // Reset to Previous Version Confirmation Dialog
     if (showResetConfirmDialog && previousWorldMapData != null) {
         AlertDialog(
@@ -554,11 +629,17 @@ fun WorldMapPositionEditorContent() {
         AddLocationDialog(
             allLevels = allLevels,
             existingLocations = worldMapData.locations,
-            onDismiss = { showAddLocationDialog = false },
-            onConfirm = { newLocation ->
-                worldMapData = worldMapData.withUpdatedLocation(newLocation)
+            onDismiss = {
                 showAddLocationDialog = false
+                addLocationPreselectedIds = emptyList()
             },
+            onConfirm = { newLocation ->
+                // Position is set by the next click on the map
+                pendingLocation = newLocation
+                showAddLocationDialog = false
+                addLocationPreselectedIds = emptyList()
+            },
+            preselectedLevelIds = addLocationPreselectedIds,
         )
     }
 

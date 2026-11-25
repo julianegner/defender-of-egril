@@ -60,6 +60,42 @@ val generateRepositoryImageCatalog = tasks.register("generateRepositoryImageCata
     }
 }
 
+val locationIconCatalogDir = layout.buildDirectory.dir("generated/source/locationIcons/commonMain/kotlin")
+val generateLocationIconCatalog = tasks.register("generateLocationIconCatalog") {
+    val icons = fileTree("src/commonMain/composeResources/drawable") {
+        include("location_*.png")
+    }
+    inputs.files(icons)
+    outputs.dir(locationIconCatalogDir)
+    doLast {
+        val baseNames = icons.files.map { it.name.removePrefix("location_").removeSuffix(".png") }.sorted()
+        val names = baseNames.joinToString(",\n") { "        \"$it\"" }
+        val branches = baseNames.joinToString("\n") { "            \"$it\" -> Res.drawable.location_$it" }
+        val output = locationIconCatalogDir.get().file("de/egril/defender/ui/editor/worldmap/LocationIconCatalog.kt").asFile
+        output.parentFile.mkdirs()
+        output.writeText(
+            """
+            |package de.egril.defender.ui.editor.worldmap
+            |
+            |import defender_of_egril.composeapp.generated.resources.*
+            |import org.jetbrains.compose.resources.DrawableResource
+            |
+            |/** Location icons generated from composeResources/drawable/location_*.png. Names have no prefix. */
+            |object LocationIconCatalog {
+            |    val names: List<String> = listOf(
+            |$names
+            |    )
+            |
+            |    fun resourceFor(name: String): DrawableResource? = when (name) {
+            |$branches
+            |        else -> null
+            |    }
+            |}
+            """.trimMargin(),
+        )
+    }
+}
+
 // Impressum flag - can be set via gradle.properties or command line: -PwithImpressum=true
 val withImpressum: Boolean = project.findProperty("withImpressum")?.toString()?.toBoolean() ?: false
 
@@ -333,6 +369,7 @@ kotlin {
         commonMain {
             kotlin.srcDir(buildConfigOutputDir)
             kotlin.srcDir(repositoryImageCatalogDir)
+            kotlin.srcDir(locationIconCatalogDir)
             kotlin.srcDirs(
                 File(
                     layout.buildDirectory.get().asFile.path,
@@ -424,6 +461,7 @@ tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>> {
     dependsOn(generateWithImpressumConstant)
     dependsOn(generateOfficialEditModeConstant)
     dependsOn(generateRepositoryImageCatalog)
+    dependsOn(generateLocationIconCatalog)
 }
 
 // The compose-multiplatform-localize plugin's GenerateTranslationsTask only declares resourcesDir and

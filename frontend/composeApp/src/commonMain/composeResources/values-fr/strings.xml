@@ -2731,4 +2731,10 @@ Abattez-le vite avant que sa horde ne submerge vos défenses !</string>
     <string name="pick_position_on_map">Choisir sur la carte</string>
     <string name="pick_position_stop">Arrêter la sélection</string>
     <string name="pick_position_hint">Cliquez sur une case de la carte pour définir la position.</string>
+    <string name="unreachable_levels_official_only">Niveaux officiels uniquement</string>
+    <string name="unreachable_levels_show_test">Afficher les niveaux de test</string>
+    <string name="unreachable_levels_none">Tous les niveaux sont accessibles sur la carte du monde.</string>
+    <string name="level_not_on_worldmap">Niveaux absents de la carte du monde</string>
+    <string name="unreachable_create_location">Créer un lieu avec la sélection</string>
+    <string name="place_location_hint">Cliquez sur la carte du monde pour placer le nouveau lieu.</string>
 </resources>

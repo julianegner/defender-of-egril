@@ -171,6 +171,45 @@ class RepositoryLoaderCommonTest {
         }
 
     @Test
+    fun testRepositorySyncKeepsLocallyEditedWorldMap() =
+        runTest {
+            val bundledVersion = RepositoryLoader.loadVersion()
+            val bundledFingerprint = RepositoryLoader.loadFingerprint()
+            assertNotNull(bundledVersion)
+            // A null fingerprint disables the fast path, forcing a full sync on every start.
+            assertNotNull(bundledFingerprint, "Repository fingerprint must be computable")
+
+            val storage =
+                TestFileStorage().apply {
+                    writeFile("gamedata/version.txt", bundledVersion)
+                    writeFile("gamedata/repository_fingerprint.txt", bundledFingerprint)
+                    writeFile("gamedata/official/maps/existing.json", "{}")
+                }
+            assertTrue(RepositoryLoader.loadAndSaveRepositoryFiles(storage))
+            assertNotNull(storage.readFile(RepositoryLoader.WORLDMAP_REPO_BASELINE_FILE))
+
+            // Simulate a Level Editor save that differs from the repository worldmap.
+            val editedJson = EditorJsonSerializer.serializeWorldMapData(WorldMapData())
+            storage.writeFile("gamedata/official/worldmap.json", editedJson)
+
+            assertTrue(RepositoryLoader.loadAndSaveRepositoryFiles(storage))
+            assertEquals(
+                editedJson,
+                storage.readFile("gamedata/official/worldmap.json"),
+                "A locally edited worldmap must survive the repository fast path",
+            )
+
+            // Force the full sync path (stored version differs) and check the edit still survives.
+            storage.writeFile("gamedata/version.txt", "stale-version")
+            assertTrue(RepositoryLoader.loadAndSaveRepositoryFiles(storage))
+            assertEquals(
+                editedJson,
+                storage.readFile("gamedata/official/worldmap.json"),
+                "A locally edited worldmap must survive the full sync path",
+            )
+        }
+
+    @Test
     fun testRepositorySyncRefreshesWhenFingerprintDiffers() =
         runTest {
             val bundledVersion = RepositoryLoader.loadVersion()
@@ -216,15 +255,15 @@ class RepositoryLoaderCommonTest {
                 val success = RepositoryLoader.loadAndSaveRepositoryFiles(storage)
 
                 assertTrue(success, "Repository sync fast path should still report success")
-                // Fast path now always refreshes worldmap.json from the bundled repository to
-                // prevent stale data from being shown (e.g. after the Level Editor modified it
-                // or after a storage quota overflow lost the file). Exactly 1 write is expected.
+                // Fast path now always refreshes worldmap.json from the bundled repository to prevent
+                // stale data from being shown (e.g. after a storage quota overflow lost the file).
+                // It writes worldmap.json plus its sync baseline, so exactly 2 writes are expected.
                 val worldmapWritten = storage.readFile("gamedata/official/worldmap.json") != null
                 if (worldmapWritten) {
                     assertEquals(
-                        writesBeforeSync + 1,
+                        writesBeforeSync + 2,
                         storage.textWriteCount,
-                        "Repository sync fast path should write exactly worldmap.json and nothing else",
+                        "Repository sync fast path should write exactly worldmap.json and its baseline",
                     )
                 } else {
                     assertEquals(

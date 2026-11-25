@@ -2730,4 +2730,10 @@
     <string name="pick_position_on_map">Elegir en el mapa</string>
     <string name="pick_position_stop">Terminar selección</string>
     <string name="pick_position_hint">Haz clic en una casilla del mapa para fijar la posición.</string>
+    <string name="unreachable_levels_official_only">Solo niveles oficiales</string>
+    <string name="unreachable_levels_show_test">Mostrar niveles de prueba</string>
+    <string name="unreachable_levels_none">Todos los niveles son accesibles desde el mapa del mundo.</string>
+    <string name="level_not_on_worldmap">Niveles fuera del mapa del mundo</string>
+    <string name="unreachable_create_location">Crear ubicación con la selección</string>
+    <string name="place_location_hint">Haz clic en el mapa del mundo para colocar la nueva ubicación.</string>
 </resources>

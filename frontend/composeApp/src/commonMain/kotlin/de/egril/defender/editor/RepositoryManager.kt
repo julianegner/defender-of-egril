@@ -289,13 +289,21 @@ object RepositoryManager {
                 currentSequence == null ||
                     currentSequence.sequence != repoSequence.sequence
 
-            // Check if worldmap is different
-            val currentWorldMapJson = fileStorage.readFile("$GAMEDATA_DIR/official/worldmap.json")
+            // Compare against the last synced repository copy, not the user-editable official file,
+            // so Level Editor worldmap changes are not mistaken for repository updates.
+            val baselineWorldMapData =
+                fileStorage.readFile(RepositoryLoader.WORLDMAP_REPO_BASELINE_FILE)
+                    ?.let { EditorJsonSerializer.deserializeWorldMapData(it) }
             val repoWorldMapData = RepositoryLoader.loadWorldMapData()
             val hasNewWorldMap =
                 if (repoWorldMapData != null) {
-                    val currentWorldMapData = currentWorldMapJson?.let { EditorJsonSerializer.deserializeWorldMapData(it) }
-                    currentWorldMapData == null || currentWorldMapData != repoWorldMapData
+                    if (baselineWorldMapData != null) {
+                        baselineWorldMapData != repoWorldMapData
+                    } else {
+                        val currentWorldMapJson = fileStorage.readFile("$GAMEDATA_DIR/official/worldmap.json")
+                        val currentWorldMapData = currentWorldMapJson?.let { EditorJsonSerializer.deserializeWorldMapData(it) }
+                        currentWorldMapData == null || currentWorldMapData != repoWorldMapData
+                    }
                 } else {
                     false
                 }

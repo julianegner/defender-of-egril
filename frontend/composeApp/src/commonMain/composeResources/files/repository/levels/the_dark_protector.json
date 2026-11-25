@@ -5,7 +5,7 @@
     "license": "GNU Affero General Public License v3.0 (AGPL-3.0)"
   },
   "data": {
-  "id": "shadows_over_the_path_copy_1087",
+  "id": "the_dark_protector",
   "isOfficial": true,
   "mapId": "map_the_dark_path",
   "title": "The Dark Protector",
@@ -13,11 +13,11 @@
   "startCoins": 100,
   "startHealthPoints": 10,
   "enemySpawns": [
-    
+
   ],
   "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER"],
   "waypoints": [
-    
+
   ],
   "prerequisites": [],
   "connectedToPreviousLevel": true,
@@ -32,7 +32,7 @@
   "spawnGroups": [
     {"turnOffset": 1, "spawns": [{"attackerType": "EVIL_WIZARD", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "RED_WITCH", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "RED_WITCH", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}]},
     {"turnOffset": 2, "spawns": [{"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "ZOMBIE", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "ZOMBIE", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}]},
-    {"turnOffset": 3, "spawns": [{"attackerType": "OBSIDIAN_PROTECTOR", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}, "unitId": "Obsidian Protector", "firstIterationOnly": true}]},
+    {"turnOffset": 3, "spawns": [{"attackerType": "OBSIDIAN_PROTECTOR", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}, "unitId": "Morvath, the Shadowmaster", "firstIterationOnly": true}]},
     {"turnOffset": 4, "spawns": [{"attackerType": "BLUE_DEMON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "BLUE_DEMON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "BLUE_DEMON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "BLUE_DEMON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "RED_DEMON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "RED_DEMON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}]},
     {"turnOffset": 5, "spawns": [{"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "SKELETON", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "EVIL_WIZARD", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "EVIL_WIZARD", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "EVIL_WIZARD", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "EVIL_WIZARD", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "EVIL_WIZARD", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}]},
     {"turnOffset": 6, "spawns": [{"attackerType": "GREEN_WITCH", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "GREEN_WITCH", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "GREEN_WITCH", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "GREEN_WITCH", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}, {"attackerType": "GREEN_WITCH", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 38}}]},

@@ -37,14 +37,15 @@ internal fun AddLocationDialog(
     existingLocations: List<WorldMapLocationData>,
     onDismiss: () -> Unit,
     onConfirm: (WorldMapLocationData) -> Unit,
+    preselectedLevelIds: List<String> = emptyList(),
 ) {
     var name by remember { mutableStateOf("") }
-    var selectedLevelIds by remember { mutableStateOf(setOf<String>()) }
+    var selectedLevelIds by remember { mutableStateOf(preselectedLevelIds.toSet()) }
     var selectedIconResourceName by remember { mutableStateOf<String?>(null) }
 
-    // Get levels not yet assigned to any location
+    // Get levels not yet assigned to any location (preselected levels stay visible)
     val assignedLevelIds = existingLocations.flatMap { it.levelIds }.toSet()
-    val availableLevels = allLevels.filter { it.id !in assignedLevelIds }
+    val availableLevels = allLevels.filter { it.id !in assignedLevelIds || it.id in preselectedLevelIds }
 
     AlertDialog(
         onDismissRequest = onDismiss,

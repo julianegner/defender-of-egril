@@ -2729,4 +2729,10 @@ Streckt ihn schnell nieder, bevor seine Horde eure Verteidigung überrollt!</str
     <string name="pick_position_on_map">Auf Karte wählen</string>
     <string name="pick_position_stop">Auswahl beenden</string>
     <string name="pick_position_hint">Klicke ein Feld auf der Karte, um die Position zu setzen.</string>
+    <string name="unreachable_levels_official_only">Nur offizielle Level</string>
+    <string name="unreachable_levels_show_test">Test-Level anzeigen</string>
+    <string name="unreachable_levels_none">Alle Level sind über die Weltkarte erreichbar.</string>
+    <string name="level_not_on_worldmap">Level nicht auf Weltkarte</string>
+    <string name="unreachable_create_location">Ort aus Auswahl erstellen</string>
+    <string name="place_location_hint">Klicke auf die Weltkarte, um den neuen Ort zu platzieren.</string>
 </resources>

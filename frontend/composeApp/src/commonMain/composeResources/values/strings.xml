@@ -2739,4 +2739,10 @@ Bring him down fast before his host overwhelms your defenses!</string>
     <string name="pick_position_on_map">Pick on map</string>
     <string name="pick_position_stop">Stop picking</string>
     <string name="pick_position_hint">Click a tile on the map to set the position.</string>
+    <string name="unreachable_levels_official_only">Official levels only</string>
+    <string name="unreachable_levels_show_test">Show test levels</string>
+    <string name="unreachable_levels_none">All levels are reachable on the world map.</string>
+    <string name="level_not_on_worldmap">Levels not on world map</string>
+    <string name="unreachable_create_location">Create location from selection</string>
+    <string name="place_location_hint">Click on the world map to place the new location.</string>
 </resources>
