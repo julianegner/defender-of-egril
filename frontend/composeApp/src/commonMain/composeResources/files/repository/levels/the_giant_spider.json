@@ -1,0 +1,49 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+  "id": "the_giant_spider",
+  "mapId": "map_the_spiderweb",
+  "title": "The Giant Spider",
+  "subtitle": "",
+  "startCoins": 100,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    {"attackerType": "ARAXXA", "level": 6, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 38}},
+    {"attackerType": "SPIDERLING", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 38}},
+    {"attackerType": "SPIDERLING", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 38}},
+    {"attackerType": "SPIDERLING", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 38}},
+    {"attackerType": "SPIDERLING", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 38}},
+    {"attackerType": "SPIDERLING", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 38}},
+    {"attackerType": "SPIDERLING", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 20, "y": 38}}
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER"],
+  "waypoints": [
+    {"position": {"x": 20, "y": 38}, "nextTargetPosition": {"x": 28, "y": 1}}
+  ],
+  "prerequisites": [],
+  "singleHitTargetOrder": [{"x": 28, "y": 1}, {"x": 36, "y": 13}, {"x": 38, "y": 66}, {"x": 28, "y": 76}, {"x": 11, "y": 76}, {"x": 1, "y": 69}, {"x": 1, "y": 8}, {"x": 10, "y": 1}],
+  "author": "Julian Egner",
+  "supports": {
+    "objects": [
+      {"type": "BARRICADE", "count": 20, "damage": 10, "healthPoints": 120},
+      {"type": "DWARVEN_TRAP", "count": 10, "damage": 10, "healthPoints": 50},
+      {"type": "MAGICAL_TRAP", "count": 4, "damage": 10, "healthPoints": 50}
+    ]
+  },
+  "initialData": {
+    "barricades": [
+      {"position": {"x": 28, "y": 4}, "healthPoints": 150},
+      {"position": {"x": 35, "y": 17}, "healthPoints": 150},
+      {"position": {"x": 11, "y": 4}, "healthPoints": 150},
+      {"position": {"x": 2, "y": 11}, "healthPoints": 150},
+      {"position": {"x": 3, "y": 66}, "healthPoints": 150},
+      {"position": {"x": 11, "y": 73}, "healthPoints": 150},
+      {"position": {"x": 27, "y": 73}, "healthPoints": 150},
+      {"position": {"x": 36, "y": 63}, "healthPoints": 150}
+    ]
+  }
+}
+}

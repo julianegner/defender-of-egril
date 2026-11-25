@@ -1,0 +1,28 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level",
+    "license": "GNU Affero General Public License v3.0 (AGPL-3.0)"
+  },
+  "data": {
+  "id": "the_mountain_rift",
+  "mapId": "map_in_the_mountains",
+  "title": "The Mountain Rift",
+  "subtitle": "",
+  "startCoins": 100,
+  "startHealthPoints": 10,
+  "enemySpawns": [
+    
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
+  "waypoints": [
+    
+  ],
+  "prerequisites": [],
+  "author": "Julian Egner",
+  "spawnGroups": [
+    {"turnOffset": 1, "spawns": [{"attackerType": "ZYTHAR_THE_RIFTCALLER", "count": 1, "level": 1, "spawnPoint": {"x": 3, "y": 4}, "unitId": "Zythar the Riftcaller", "firstIterationOnly": true}, {"attackerType": "DEMONLING", "count": 1, "level": 10, "spawnPoint": {"x": 3, "y": 4}}, {"attackerType": "DEMONLING", "count": 1, "level": 10, "spawnPoint": {"x": 3, "y": 4}}, {"attackerType": "DEMONLING", "count": 1, "level": 10, "spawnPoint": {"x": 3, "y": 4}}, {"attackerType": "DEMONLING", "count": 1, "level": 10, "spawnPoint": {"x": 3, "y": 4}}]},
+    {"groupId": "loop_1", "repeatMode": "COUNT", "repeatCount": 5, "entries": [{"turnOffset": 1, "spawns": [{"attackerType": "DEMONLING", "count": 1, "level": 10, "spawnPoint": {"x": 3, "y": 4}}, {"attackerType": "DEMONLING", "count": 1, "level": 10, "spawnPoint": {"x": 3, "y": 4}}, {"attackerType": "DEMONLING", "count": 1, "level": 10, "spawnPoint": {"x": 3, "y": 4}}, {"attackerType": "DEMONLING", "count": 1, "level": 10, "spawnPoint": {"x": 3, "y": 4}}]}, {"turnOffset": 4, "spawns": []}]}
+  ]
+}
+}

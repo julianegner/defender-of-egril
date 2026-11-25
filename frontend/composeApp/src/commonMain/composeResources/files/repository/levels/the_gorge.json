@@ -1,0 +1,125 @@
+{
+  "metadata": {
+    "program": "Defender of Egril",
+    "type": "level"
+  },
+  "data": {
+  "id": "the_gorge",
+  "mapId": "map_the_gorge",
+  "title": "The Gorge",
+  "subtitle": "",
+  "startCoins": 1000,
+  "startHealthPoints": 100,
+  "enemySpawns": [
+    {"attackerType": "GOBLIN", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "GOBLIN", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "GOBLIN", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "GOBLIN", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "GOBLIN", "level": 10, "spawnTurn": 1, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "ORK", "level": 10, "spawnTurn": 2, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "ORK", "level": 10, "spawnTurn": 2, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "ORK", "level": 10, "spawnTurn": 2, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "ORK", "level": 10, "spawnTurn": 2, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "ORK", "level": 10, "spawnTurn": 2, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "ORK", "level": 10, "spawnTurn": 2, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "EVIL_WIZARD", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "EVIL_WIZARD", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 3, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "SKELETON", "level": 10, "spawnTurn": 4, "spawnPoint": {"x": 1, "y": 48}},
+    {"attackerType": "ARCHMAGE_MALAKOR_THE_RENEGADE", "level": 1, "spawnTurn": 5, "spawnPoint": {"x": 1, "y": 1}},
+    {"attackerType": "IGNIS_VA_THE_DRAGONVOICE", "level": 5, "spawnTurn": 5, "spawnPoint": {"x": 1, "y": 48}}
+  ],
+  "availableTowers": ["SPIKE_TOWER", "SPEAR_TOWER", "BOW_TOWER", "WIZARD_TOWER", "ALCHEMY_TOWER", "BALLISTA_TOWER", "DWARVEN_MINE"],
+  "waypoints": [
+    {"position": {"x": 1, "y": 1}, "nextTargetPosition": {"x": 48, "y": 48}},
+    {"position": {"x": 1, "y": 48}, "nextTargetPosition": {"x": 48, "y": 1}}
+  ],
+  "prerequisites": [],
+  "author": "Julian Egner",
+  "supports": {
+    "objects": [
+      {"type": "BARRICADE", "count": 10, "damage": 10, "healthPoints": 50},
+      {"type": "DWARVEN_TRAP", "count": 10, "damage": 30, "healthPoints": 50}
+    ],
+    "spells": [
+      {"spell": "HEAL", "count": 2},
+      {"spell": "DOUBLE_TOWER_LEVEL", "count": 2},
+      {"spell": "DOUBLE_TOWER_REACH", "count": 6}
+    ]
+  },
+  "initialData": {
+    "defenders": [
+      {"type": "BALLISTA_TOWER", "position": {"x": 17, "y": 27}, "level": 10, "onTowerBase": true},
+      {"type": "BALLISTA_TOWER", "position": {"x": 17, "y": 23}, "level": 10, "onTowerBase": true},
+      {"type": "WIZARD_TOWER", "position": {"x": 17, "y": 26}, "level": 10, "onTowerBase": true},
+      {"type": "WIZARD_TOWER", "position": {"x": 17, "y": 24}, "level": 10, "onTowerBase": true},
+      {"type": "WIZARD_TOWER", "position": {"x": 44, "y": 45}, "level": 10},
+      {"type": "WIZARD_TOWER", "position": {"x": 45, "y": 4}, "level": 10},
+      {"type": "SPEAR_TOWER", "position": {"x": 48, "y": 44}, "level": 10},
+      {"type": "SPEAR_TOWER", "position": {"x": 44, "y": 48}, "level": 10},
+      {"type": "SPEAR_TOWER", "position": {"x": 48, "y": 5}, "level": 10},
+      {"type": "SPEAR_TOWER", "position": {"x": 44, "y": 1}, "level": 10},
+      {"type": "SPIKE_TOWER", "position": {"x": 31, "y": 26}, "level": 10},
+      {"type": "SPIKE_TOWER", "position": {"x": 31, "y": 24}, "level": 10},
+      {"type": "SPEAR_TOWER", "position": {"x": 31, "y": 22}, "level": 10},
+      {"type": "SPEAR_TOWER", "position": {"x": 31, "y": 28}, "level": 10},
+      {"type": "BOW_TOWER", "position": {"x": 32, "y": 30}, "level": 10},
+      {"type": "BOW_TOWER", "position": {"x": 33, "y": 27}, "level": 10},
+      {"type": "BOW_TOWER", "position": {"x": 34, "y": 25}, "level": 10},
+      {"type": "BOW_TOWER", "position": {"x": 33, "y": 23}, "level": 10},
+      {"type": "BOW_TOWER", "position": {"x": 32, "y": 20}, "level": 10}
+    ],
+    "traps": [
+      {"position": {"x": 31, "y": 25}, "damage": 50, "type": "DWARVEN"},
+      {"position": {"x": 32, "y": 29}, "damage": 50, "type": "DWARVEN"},
+      {"position": {"x": 33, "y": 28}, "damage": 50, "type": "DWARVEN"},
+      {"position": {"x": 32, "y": 21}, "damage": 50, "type": "DWARVEN"},
+      {"position": {"x": 33, "y": 22}, "damage": 50, "type": "DWARVEN"},
+      {"position": {"x": 34, "y": 24}, "damage": 50, "type": "DWARVEN"},
+      {"position": {"x": 34, "y": 26}, "damage": 50, "type": "DWARVEN"},
+      {"position": {"x": 19, "y": 25}, "damage": 50, "type": "DWARVEN"}
+    ],
+    "barricades": [
+      {"position": {"x": 19, "y": 23}, "healthPoints": 210},
+      {"position": {"x": 19, "y": 27}, "healthPoints": 210},
+      {"position": {"x": 18, "y": 27}, "healthPoints": 210},
+      {"position": {"x": 18, "y": 23}, "healthPoints": 210},
+      {"position": {"x": 17, "y": 27}, "healthPoints": 210},
+      {"position": {"x": 17, "y": 23}, "healthPoints": 210},
+      {"position": {"x": 17, "y": 24}, "healthPoints": 210},
+      {"position": {"x": 17, "y": 26}, "healthPoints": 210},
+      {"position": {"x": 16, "y": 25}, "healthPoints": 210, "isGate": true}
+    ],
+    "fiefs": [
+      {"position": {"x": 47, "y": 2}, "type": "MARKETPLACE"},
+      {"position": {"x": 47, "y": 47}, "type": "MARKETPLACE"},
+      {"position": {"x": 48, "y": 25}, "type": "QUARRY"},
+      {"position": {"x": 47, "y": 25}, "type": "QUARRY"},
+      {"position": {"x": 48, "y": 24}, "type": "QUARRY"},
+      {"position": {"x": 48, "y": 26}, "type": "QUARRY"},
+      {"position": {"x": 49, "y": 26}, "type": "QUARRY"},
+      {"position": {"x": 49, "y": 24}, "type": "QUARRY"},
+      {"position": {"x": 49, "y": 25}, "type": "QUARRY"}
+    ]
+  }
+}
+}
